@@ -1,9 +1,10 @@
 #include <stdio.h>
+int fun(int,int,int);
 
-int main(int argc,char ** argv)
-{
-	int i;
-	for(i=0;i<argc;i++)
-	   printf("Argument %d is %s.\n",i,argv[i]);
-	return 0;
+int fun(int x,int y,int z) {
+	int a=x+y+z;
+	return a;
+}
+int main() {
+	return fun(1,2,3);
 }
