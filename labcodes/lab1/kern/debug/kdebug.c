@@ -312,8 +312,8 @@ print_stackframe(void) {
 		  }
 		  cprintf("\n");
 		  print_debuginfo(t_eip-1);
-		  t_eip=*((uint32_t *)t_ebp+1);
-		  t_ebp=*((uint32_t *)t_ebp);
+		  eip = ((uint32_t *)ebp)[1];
+          ebp = ((uint32_t *)ebp)[0];
 	  }
 }
 }
