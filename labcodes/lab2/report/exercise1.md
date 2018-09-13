@@ -118,13 +118,24 @@ static struct Page *default_alloc_pages(size_t n) {
     list_entry_t le = &free_free_list;//begin from the head pointer of free block list 
     while((le = list_next(le)) != &free_list) {//trace entire linked list 
         struct Page *p = le2page(le, page_link);//transform address into the structure of page
-        if(p->property >= n){//come cross 
-            PG_reserved = 1;
-            PG_property = 0;
-            
+        if(p->property >= n){//choose it when coming across the first block that is greater than N
+            int i;
+            for(i=0;i<n;i++){//recursively init every page structure from the selected free block list}
+                len = list_next(le);
+                struct Page *pp = le2page(le,page_link);
+                SetPageReserved(pp);
+                ClearPageProperty(pp);
+                list_del(le);//delete the pointer of this dll from the free page linked list
+                le = len;
+            }
+            if(p->property>n) 
+                (le2page(le,page_link))->property = p->property - n;
+            ClearPageProperty(p);
+            SetPageReserved(p);
+            nr_free -= n;//the total number of current free pages substract n
+            return p;
         }
     }
     return NULL;
 }
 ````
-
