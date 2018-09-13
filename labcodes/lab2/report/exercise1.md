@@ -1,19 +1,19 @@
 
 
-#implement the algorithm of first-fit continue physical memory allocation
+# implement the algorithm of first-fit continue physical memory allocation
 
-##necessary theory
+## necessary theory
 
-###the structure of page
+### the structure of page
 
 ````c++
 struct Page {
-    
-    
-}
+    int ref;					//page frame's reference counter
+    uint32_t flags;				//array of flags that describe the status of the page frame
+    unsigned int property;		//the num of free block,used in first fit pm management
+    list_entry_t page_link;		//free list link	
+};
 ````
-
-
 
 1. ref: represents the virtual page counter of reference  the page frame(physical page).++ref:there are new virtual page mapping the page frame.else,detaching.
 
@@ -23,7 +23,7 @@ struct Page {
 
 4. page_link: the doubly linked list pointer so as to link several continue block.
 
-   ###List implementation
+   ### List implementation
 
 ````c++
 struct list_entry {		//Simple doubly linked list implementation...
@@ -43,11 +43,4 @@ typedef stuct {
 
 - free_list is the pointer of list_entry structure.
 - nr_free is recording the number of free pages.
-
-```c++
-typedef stuct {
-    list_entry_t free_list;		//the list header
-    unsigned int nr_free;		//of free pages in this free list
-}tree_area_t;
-```
 
