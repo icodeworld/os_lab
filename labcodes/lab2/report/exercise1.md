@@ -21,9 +21,11 @@ struct Page {
 
 3. property: the size of continue free block.(it must be the beginning address of the continue block if the member is used).
 
-4. page_link: the doubly linked list pointer so as to link several continue block.
+4. page_link: the doubly linked list pointer so as to link several continue block.                   
 
-   ### List implementation
+   ### <br>
+
+   ### List implementation</br>
 
 ````c++
 struct list_entry {		//Simple doubly linked list implementation...
