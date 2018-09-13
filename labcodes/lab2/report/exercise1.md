@@ -83,7 +83,8 @@ static void default_init_memmap(struct Page *base, size_t n) {
         list_add_before(&free_list,&(p->page_link));//insert the free page list
         nr_free += n;//illustrate having continue n free blocks that belong to free linked list
         base->property = n;//the continue memory free blocks size is n that is ppmll
-     } 
+     }
+}
 ````
 
 - 2.3 default_alloc_pages()  the following explanation:
@@ -125,6 +126,5 @@ static struct Page *default_alloc_pages(size_t n) {
     }
     return NULL;
 }
-    
 ````
 
