@@ -12,10 +12,21 @@ struct Page {
     unsigned int property;		//the total num of free block,used in first fit pm management
     list_entry_t page_link;		//free list link	
 };
+/* Flags describing the status of a page frame */
+frame */
+#define PG_reserved                 0       // if this bit=1: the Page is reserved for kernel, cannot be used in alloc/free_pages; otherwise, this bit=0 
+#define PG_property                 1       // if this bit=1: the Page is the head page of a free memory block(contains some continuous_addrress pages), and can be used in alloc_pages; if this bit=0: if the Page is the the head page of a free memory block, then this Page and the memory block is alloced. Or this Page isn't the head page.
+
+#define SetPageReserved(page)       set_bit(PG_reserved, &((page)->flags))
+#define ClearPageReserved(page)     clear_bit(PG_reserved, &((page)->flags))
+#define PageReserved(page)          test_bit(PG_reserved, &((page)->flags))
+#define SetPageProperty(page)       set_bit(PG_property, &((page)->flags))
+#define ClearPageProperty(page)     clear_bit(PG_property, &((page)->flags))
+#define PageProperty(page)          test_bit(PG_property, &((page)->flags)
 ```
 
 1. ref: represents the virtual page counter of reference  the page frame(physical page).++ref:there are new virtual page mapping the page frame.else,detaching.
-2. flags: it have two flag bits.One is meaning whether it was kept.if kept,set 1.The another is meaning whether it is free.if free,it can be allocated,whereas it cannot be allocated.
+2. flags: it have two flag bits(PG_reserved.PG_property).One is meaning whether it was kept.if kept,set 0.The another is meaning whether it is free.if free,it can be allocated,whereas it cannot be allocated.
 3. property: the size of continue free block.(it must be the beginning address of the continue block if the member is used).
 4. page_link: the doubly linked list pointer so as to link several continue block.         
 
@@ -75,15 +86,16 @@ static void default_init_memmap(struct Page *base, size_t n) {
     assert(0 < n);
     struct Page *p = base;
     for(;p != base + n;p++){
-        assert(PageReserved(p));//ensure the page is reserved
+        assert(PageReserved(p));//ensure the page is free
         p->flags = 0;//set the flag bit
-        SetPageProperty(p);
         p->property = 0;
         set_page_ref(p,0);//clean the reference
-        list_add_before(&free_list,&(p->page_link));//insert the free page list
-        nr_free += n;//illustrate having continue n free blocks that belong to free linked list
-        base->property = n;//the continue memory free blocks size is n that is ppmll
-     }
+    }
+    SetPageProperty(base);
+    list_add_before(&free_list,&(p->page_link));//insert the free page list
+    nr_free += n;//illustrate having continue n free blocks that belong to free linked list
+    base->property = n;//the continue memory free blocks size is n that is ppmll
+     
 }
 ````
 
@@ -110,10 +122,12 @@ search find a first free block (block size >=n) in free list and reszie the free
 ````
 
 ````c++
-static struct Page *default_alloc_pages(size_t n) {
+static struct Page *
+default_alloc_pages(size_t n) {
 	assert(0 < n);
     if(nr_free < n) 
         return NULL;//if the sum of all free pages size isnnot enough
+    struct Page *page = NULL;
     list_entry_t *len;
     list_entry_t le = &free_free_list;//begin from the head pointer of free block list 
     while((le = list_next(le)) != &free_list) {//trace entire linked list 
