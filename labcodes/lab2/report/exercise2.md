@@ -35,10 +35,10 @@ The process is as follows:
 4. PTE_W: Bit 2, indicate that the physical memory page content can be written
 
 5. PTE_P: Bit 1, indicate the existence of physical memory pages
-  Ucore's memory management often needs to look up the page table: Given a virtual address, find out the virtual address in the secondary page table.
-  The item that should be. You can easily map a virtual address to another page by changing the value of this item. This can do this
-  The function is the get_pte function. Its prototype is
-  Pte_t *get_pte (pde_t *pgdir, uintptr_t la, bool create)
+    Ucore's memory management often needs to look up the page table: Given a virtual address, find out the virtual address in the secondary page table.
+    The item that should be. You can easily map a virtual address to another page by changing the value of this item. This can do this
+    The function is the get_pte function. Its prototype is
+    Pte_t *get_pte (pde_t *pgdir, uintptr_t la, bool create)
 
 Ucore's memory management often needs to look up the page table: Given a virtual address, find out the virtual address in the secondary page table of the item that should be. You can easily map a virtual address to another page by changing the value of this item. This can do this the function is the get_pte function. Its prototype is 
 
@@ -48,9 +48,9 @@ Pte_t *get_pte (pde_t *pgdir, uintptr_t la, bool create)
 
 The following contents is IA-32 Intel ® Architecture Software Developer’s Manual Volume 3:System Programming Guide
 
-![1536915143085](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1536915143085.png)
+![](D:\Userlist\图片\computer\TIM截图20180914205447.png)
 
-![1536915185070](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1536915185070.png)
+![](D:\Userlist\图片\computer\TIM截图20180914205554.png)
 
 
 
@@ -129,3 +129,13 @@ Note:
 3. uintptr_t,represents linear address(logical address in segmentation memory management)
 4. pgdir,gives the beginning address of page table
 5. It is possible that there is no corresponding secondary-level page table, so the second level page table does not have to be allocated at the beginning, but wait until the need Add the corresponding secondary-level page table when you want to.If you find a secondary-level page table entry, you find that the corresponding secondary-level page table does not exist, then you need to handle creating a new secondary-level page table based on the value of the create parameter.If the create parameter is 0, the get_pte returns NULL, if the Create parameter is not 0, get_pte needs to request a new physical page (through alloc_page.Now, you can find its definition in mm/pmm.h), and then add a page catalog entry in the first-level page table to the table representing the secondary-level page's new physical page.Note that the newly requested page must all be set to zero, because the virtual address represented by this page is not mapped.
+
+```CQL
+ +--------10------+-------10-------+---------12----------+
+ | Page Directory |   Page Table   | Offset within Page  |
+ |      Index     |     Index      |                     |
+ +----------------+----------------+---------------------+
+ |--- PDX(la) ----|---- PTX(la) ---|---- PGOFF(la) ------|
+ |----------- PPN(la) -------------|
+```
+
