@@ -48,8 +48,6 @@ Pte_t *get_pte (pde_t *pgdir, uintptr_t la, bool create)
 
 The following contents is IA-32 Intel ® Architecture Software Developer’s Manual Volume 3:System Programming Guide
 
-![1536930317856](D:\Userlist\图片\computer\%5CUsers%5CHuJie-pc%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5C1536930317856.png)
-
 ![](D:\Userlist\图片\computer\TIM截图20180914205447.png)
 
 ![](D:\Userlist\图片\computer\TIM截图20180914205554.png)
