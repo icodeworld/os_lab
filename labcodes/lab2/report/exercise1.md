@@ -94,8 +94,7 @@ static void default_init_memmap(struct Page *base, size_t n) {
     SetPageProperty(base);
     list_add_before(&free_list,&(p->page_link));//insert the free page list
     nr_free += n;//illustrate having continue n free blocks that belong to free linked list
-    base->property = n;//the continue memory free blocks size is n that is ppmll
-     
+    base->property = n;//the continue memory free blocks size is n that is ppmll 
 }
 ````
 
@@ -127,9 +126,8 @@ default_alloc_pages(size_t n) {
 	assert(0 < n);
     if(nr_free < n) 
         return NULL;//if the sum of all free pages size isnnot enough
-    struct Page *page = NULL;
     list_entry_t *len;
-    list_entry_t le = &free_free_list;//begin from the head pointer of free block list 
+    list_entry_t *le = &free_list;//begin from the head pointer of free block list 
     while((le = list_next(le)) != &free_list) {//trace entire linked list 
         struct Page *p = le2page(le, page_link);//transform address into the structure of page
         if(p->property >= n){//choose it when coming across the first block that is greater than N
@@ -153,3 +151,8 @@ default_alloc_pages(size_t n) {
     return NULL;
 }
 ````
+
+
+
+
+

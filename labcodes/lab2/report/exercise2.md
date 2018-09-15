@@ -115,11 +115,9 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
         uintptr_t pa = page2pa(page);//  get linear address of page
         memset(KADDR(pa), 0, PGSIZE); //  clear page content using memset
         *pdep = pa | PTE_U | PTE_W | PTE_P;//  set page directory entry's permission
-       }
     }
     return &((pte_t *)KADDR(PDE_ADDR(*pdep)))[PTX(la)];//  return page table entry
 }
-
 ````
 
 Note:

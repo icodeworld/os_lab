@@ -31,11 +31,13 @@ static inline void
 page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {
 if( *ptep & PTE_P){ //check if this page table entry is present		
      struct Page *page = pte2page(*ptep);//find corresponding page to pte
-    if (page_ref_dec(page) == 0) {//decrease page reference and free this page when page reference reachs 0
+     if (page_ref_dec(page) == 0) {//decrease page reference and free this page when page reference reachs 0
         free_page(page);
     }
     *ptep = 0;//clear second page table entry
     tlb_invalidate(pde_t *pgdir, uintptr_t la);//flush tlb
 }
 ```
+
+Problem1:
 
