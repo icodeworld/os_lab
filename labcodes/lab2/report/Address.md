@@ -1,5 +1,3 @@
-
-
 # the understanding of * and &：
 
 test
@@ -20,18 +18,35 @@ result：
 20 0x70fe44 0x70fe44 20
 ```
 
-Actually,variable a represents a storage unit.thus,a mean two value:the address of storage unit and the data of storage unit.So as to clearly point the meaning,**C rules a representing the data of storage unit,and &a representing the address of storage unit.** At the same time,a can not only represent a numerical value,but represent  address of anther storage unit.such as a = 1;a = &b(to store the address of b's storage unit into a's storage unit) .**C rules *a represents the data in the storage unit that corresponds to the address(data) stored in a ***,that is accessing *a is equal to accessing b.
+Actually,variable a represents a storage unit.thus,a mean two value:the address of storage unit and the data of storage unit.So as to clearly point the meaning,**C rules a representing the data of storage unit,and &a representing the address of storage unit.** At the same time,a can not only represent a numerical value,but represent  address of anther storage unit.such as a = 1;a = &b(to store the address of b's storage unit into a's storage unit) .C rules *a represents the data in the storage unit that corresponds to the address(data) stored in a *,that is accessing *a is equal to accessing b.
 
-summarize
+**summarize**
 
-**a represents the content of stored in storage unit a**
+> (&)		The address of...
+>
+> (*)		The contents of the address held in..
+>
+> Another way of saying the second of these is:
+>
+> ​		The contents of the location pointed to by...
+>
+> &x		The address at which the variable x is stored
+>
+> *ptr   	The contents of hte variable which is pointed to by ptr
 
-<u>&a represents the address of stored in storage unit a</u>
+The following example might help to clarify the way in which they are used:
 
-<u>*a 1.Requires that the data in a corresponding storage unit must be the address of another storage unit   2. *a represents the data of another storage unit</u>
+```c
+int somevar;			//Declare an int type variable called somevar
+int *ptr_to_somevar;	//Declare a pointer to an int type called ptr_to_somevar
 
-When the type of a declaration is int, the value stored in a is an integer value that can be accessed (read or modified) by a. 
-when the type of a declaration is int*, the address of a storage unit is stored in a, and the data stored in the storage unit is an integer value, which can be accessed (read or modified) by *a.
+somevar = 42; 			//Let somevar take the value 42
 
-a == &*a is the address of the storage unit.
-when the type of a declaration is int**, the address of a storage unit is stored in a, and the data stored in the storage unit is the address of another storage unit, and this storage unit stores an integer value, which can be accessed (read or modified) by **a.
+prt_to_somevar = &(somevar);//This gives a value to ptr_to_somevar.The value is the address of the variable somevar.Notice that only at this stage does is become a pointer to the particular variable somevar.Before this,its fate is quite open.The declaration merely makes it a pointer which can point to any integer variable which is around
+
+printf("%d",*ptr_to_somevar);//Print out "the contents of the location pointed to by prt_to_somevar"in other words somevar itself.So this will be just 42
+
+*ptr_to_somevar = 56;//Let the contents of the location pointed to by ptr_to_somevar be 56.This is the same as the more direct statement
+```
+
+![]()![1536999345965](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1536999345965.png)
