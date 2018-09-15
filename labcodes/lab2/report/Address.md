@@ -32,7 +32,7 @@ Actually,variable a represents a storage unit.thus,a mean two value:the address 
 >
 > &x		The address at which the variable x is stored
 >
-> *ptr   	The contents of hte variable which is pointed to by ptr
+> *ptr   	The contents of the variable which is pointed to by ptr
 
 The following example might help to clarify the way in which they are used:
 
@@ -50,3 +50,4 @@ printf("%d",*ptr_to_somevar);//Print out "the contents of the location pointed t
 ```
 
 ![](D:\Userlist\picture\computer\address2.png)
+
