@@ -33,5 +33,5 @@ summarize
 When the type of a declaration is int, the value stored in a is an integer value that can be accessed (read or modified) by a. 
 when the type of a declaration is int*, the address of a storage unit is stored in a, and the data stored in the storage unit is an integer value, which can be accessed (read or modified) by *a.
 
-A == &*a is the address of the storage unit.
+a == &*a is the address of the storage unit.
 when the type of a declaration is int**, the address of a storage unit is stored in a, and the data stored in the storage unit is the address of another storage unit, and this storage unit stores an integer value, which can be accessed (read or modified) by **a.
