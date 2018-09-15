@@ -49,4 +49,4 @@ printf("%d",*ptr_to_somevar);//Print out "the contents of the location pointed t
 *ptr_to_somevar = 56;//Let the contents of the location pointed to by ptr_to_somevar be 56.This is the same as the more direct statement
 ```
 
-![]()![1536999345965](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1536999345965.png)
+![](D:\Userlist\picture\computer\address2.png)
