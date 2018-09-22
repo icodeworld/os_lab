@@ -66,7 +66,8 @@
 
 #### lab1
 
-(1)Use Debug to write the following procedure segmentation into the memory,performing line by line,at the same time, watching the change regard the contents of relative registers.
+1. (1)Use Debug to write the following procedure segmentation into the memory,performing line by line,at the same time, watching the change regard the contents of relative registers.
+
 
 ![1537367338769](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537367338769.png)
 
@@ -221,30 +222,32 @@ can't revise the data.
 
 #### lab2
 
-```assembly
-mov ax,ffff
-mov ds,ax
+1. 
 
-mov ax,2200
-mov ss,ax
+   ```
+   mov ax,ffff
+   mov ds,ax
+   
+   mov ax,2200
+   mov ss,ax
+   
+   mov sp,0100
+   
+   mov ax,[0]          ;ax=C0EAH
+   add ax,[2]			;ax=C0FCH
+   mov bx,[4]			;bx=30F0H
+   add bx,[6]			;bx=6021H
+   
+   push ax				;sp=00FEH; the address of revised store unit is 220FEH, the content is C0FCH 
+   push bx				;sp=00FCH; the address of revised store unit is 220FCH, the content is 6021H 
+   pop ax				;sp=00FEH; ax=6021H
+   pop bx				;sp=0100H; bx=C0FCH
+   
+   push [4]			;sp=00FEH; the address of revised store unit is 220FEH, the content is 30F0H 
+   push [6]			;sp=00FCH; the address of revised store unit is 220FCH ,the content is 2F31H
+   ```
 
-mov sp,0100
-
-mov ax,[0]          ;ax=C0EAH
-add ax,[2]			;ax=C0FCH
-mov bx,[4]			;bx=30F0H
-add bx,[6]			;bx=6021H
-
-push ax				;sp=00FEH; the address of revised store unit is 220FEH, the content is C0FCH 
-push bx				;sp=00FCH; the address of revised store unit is 220FCH, the content is 6021H 
-pop ax				;sp=00FEH; ax=6021H
-pop bx				;sp=0100H; bx=C0FCH
-
-push [4]			;sp=00FEH; the address of revised store unit is 220FEH, the content is 30F0H 
-push [6]			;sp=00FCH; the address of revised store unit is 220FCH ,the content is 2F31H
-```
-
-store the address of next instruction so as to find the entry address of keeping the state before using the stack. 
+   store the address of next instruction so as to find the entry address of keeping the state before using the stack. 
 
 
 
@@ -275,45 +278,42 @@ store the address of next instruction so as to find the entry address of keeping
 
 #### lab3
 
-1. #### ; t1.asm 
-
-sume cs:codesg
 
 
-codesg segment
-
-
-   mov ax,2000H         ax= 2000H
-
-   mov ss,ax		    			ss= 2000H   sp= 0 
-
-   mov sp,0				
-   add sp,10						ss= 2000H   sp= 000AH	top= 
-
-   pop ax				ax=	0000H	ss= 2000H   sp= 000CH
-
-   pop bx				bx= 0000H	ss= 2000H   sp= 000EH
-
-   push ax              ax= 0000H   ss= 2000H	sp= 000CH
-
-   push bx				bx= 0000H	ss= 2000H	sp= 000AH
-
-   pop ax				ax= 0000H	ss= 2000H	sp= 000CH
-
-   pop bx				bx= 0000H	ss= 2000H	sp= 000EH
-
-
-   mov ax,4c00H
-
-   int 21H
-
-
-codesg ends
-
-
-end 
-
-
+- ```assembly
+  sume cs:codesg
+  
+  codesg segment
+  
+     mov ax,2000H         ax= 2000H
+  
+     mov ss,ax		    			ss= 2000H   sp= 0 
+  
+     mov sp,0				
+     add sp,10						ss= 2000H   sp= 000AH	top= 
+  
+     pop ax				ax=	0000H	ss= 2000H   sp= 000CH
+  
+     pop bx				bx= 0000H	ss= 2000H   sp= 000EH
+  
+     push ax              ax= 0000H   ss= 2000H	sp= 000CH
+  
+     push bx				bx= 0000H	ss= 2000H	sp= 000AH
+  
+     pop ax				ax= 0000H	ss= 2000H	sp= 000CH
+  
+     pop bx				bx= 0000H	ss= 2000H	sp= 000EH
+  
+     mov ax,4c00H
+  
+     int 21H
+  
+  codesg ends
+  
+  end 
+  
+  
+  ```
 
 
 
@@ -567,7 +567,7 @@ end
    	mov bx,0
    	mov cx,001ch
      
-     s:mov al,[bx]
+     s:mov al,ds:[bx]
    	mov es:[bx],al
    
    	inc bx
@@ -591,49 +591,520 @@ end
 
 ## Chapter 6
 
-```assembly
-assume cs:code
 
-code segment
 
-	dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
-	
-	mov bx,0
-	mov ax,0
-	
-	mov cx,8
-  s:add ax,cs:[bx]
-    add bx,2
-    loop s 
-    
-    mov ax,4c00h
-    int 21h
-    
-code ends
-end
-```
+1. ```assembly
+   assume cs:code
+   
+   code segment
+   
+   	dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+   	
+   	mov bx,0
+   	mov ax,0
+   	
+   	mov cx,8
+     s:add ax,cs:[bx]
+       add bx,2
+       loop s 
+       
+       mov ax,4c00h
+       int 21h
+       
+   code ends
+   end
+   ```
 
-```assembly
-;entry
-assume cs:code
+2. 
 
-code segment
+   ```assembly
+   ;entry
+   assume cs:code
+   
+   code segment
+   
+   	dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+   
+       start:      mov bx,0
+                   mov ax,0
+   
+                   mov cx,8
+           s:      add ax,cs:[bx]
+                   add bx,2
+                   loop s 
+   
+                   mov ax,4c00h
+                   int 21h
+   
+   code ends
+   end start
+   ```
 
-	dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+   ```assembly
+   ;6.2
+   assume cs:code
+   
+   codesg segment
+   
+   	dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+   
+   	dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0   ;derive the meoroty space or define 16 word type of data.
+   	
+       start:      mov ax,cs
+                   mov ss,ax
+                   mov sp,30h
+                   
+                   mov bx,0
+                   mov cx,8
+           s:      push cs:[bx]
+           		add bx,2
+           		loop s
+           		
+           		mov bx,0
+           		mov cx,8
+           s0:		pop cs:[bx]
+           		add bx,2
+           		loop s0
+           		
+                   mov ax,4c00h
+                   int 21h
+   
+   codesg ends
+   end start
+   ```
 
-    start:      mov bx,0
-                mov ax,0
+   ### test 6.1
 
-                mov cx,8
-        s:      add ax,cs:[bx]
-                add bx,2
-                loop s 
+   The following program increments the function that using the content of 0:0~0:15 in memory unit revises the data of program in turn.
 
-                mov ax,4c00h
-                int 21h
+   ```assembly
+   assume cs:codesg
+   
+   codesg segment
+   
+       dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+       
+   start:		    mov ax,0
+       			mov ds,ax
+       			mov bx,0
+       			
+       			mov cx,8
+       	  s:	mov ax,ds:[bx]
+       	  		mov cs:[bx],ax
+   		    	add bx,2
+   		    	loop s
+   		    	
+   		    	mov ax,4c00h
+   		    	int 21h
+   codesg ends
+   end start
+   ```
 
-code ends
-end start
-```
+   (2)use stack to accomplish the above function.
+
+   ```assembly
+   assume cs:codesg
+   
+   codesg segment
+   
+       dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+       dw 0,0,0,0,0,0,0,0,0,0   ;use 20B to be stack. 
+       
+   start:		    mov ax,cs
+       			mov ss,ax
+       			mov sp,36
+       			
+       		    mov ax,0
+       		    mov ds,ax
+       		    mov bx,0
+       		    mov cx,8
+   		    	
+   		   s:   push ds:[bx]
+   		        pop  cs:[bx]
+   		        add bx,2
+   		        loop s
+   		        
+   		    	mov ax,4c00h
+   		    	int 21h
+   codesg ends
+   end start
+   ```
+
+   ![1537603305459](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537603305459.png)
+
+   ```assembly
+   ;6.4
+   assume cs:code,ds:data,ss:stack
+   
+   data segment
+   
+       dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+       
+   data ends
+   
+   stack segment
+   
+       dw 0,0,0,0,0,0,0,0,0,0   ;use 20B to be stack. 
+   
+   stack ends
+   
+   code segment
+   
+   start:    mov ax,stack  
+   	      mov ss,ax
+   	      mov sp,20h    ;ss:sp points to stack:20
+   	      
+   	      mov ax,data
+   	      mov ds,ax     ;ds points to data segment
+   	      
+   	      mov bx,0      ;ds:bx points to the first unit of data segment
+   	      
+   	      mov cx,8
+   	   s: push [bx]
+   	      add bx,2
+   	      loop s        ;out stack
+   	      
+   	      mov bx,0
+   	      mov cx,8
+   	   s0:pop [bx]
+   	      add bx,2
+   	      loop s0       ;in stack
+   	      
+   	      mov ax,4c00h
+   	      int 21h
+   	      
+   code ends
+   end start
+   ```
+
+
+#### lab5
+
+1. ```assembly
+   assume cs:code,ds:data,ss:stack
+   
+   data segment
+   	dw 0123h,0456h,0789h,0abch,0defh,0fedh,0cbah,0987h
+   data ends
+   
+   stack segment
+   	dw 0,0,0,0,0,0,0,0
+   stack ends
+   
+   code segment
+   
+   start:	mov ax,stack
+   		mov ss,ax
+   		mov sp,16
+   		
+   		mov ax,data
+   		mov ds,ax
+   		
+   		push ds:[0]
+   		push ds:[2]
+   		pop  ds:[2]
+   		pop  ds:[0]
+   		
+   		mov ax,4c00h
+   		int 21h
+   code ends
+   
+   end start
+   ```
+
+   ![1537605562692](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537605562692.png)
+
+   1.  above
+
+   2. cs= 076CH、ss= 076BH、ds= 076AH
+
+   3. ss= x-0001H
+
+      ds=x-0002H
+
+2. 
+
+   ```assembly
+   assume cs:code,ds:data,ss:stack
+   
+   data segment
+   	dw 0123h,0456h
+   data ends
+   
+   stack segment
+   	dw 0,0
+   stack ends
+   
+   code segment
+   
+   start:	mov ax,stack
+   		mov ss,ax
+   		mov sp,16
+   		
+   		mov ax,data
+   		mov ds,ax
+   		
+   		push ds:[0]
+   		push ds:[2]
+   		pop ds:[2]
+   		pop ds:[0]
+   		
+   		mov ax,4c00h
+   		int 21h
+   code ends
+   
+   end start
+   ```
+
+   ![1537606502921](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537606502921.png)
+
+   1. above
+
+   2. cs= 076CH、ss= 076BH、ds= 076AH
+
+   3. ss= x-0001H
+
+      ds=x-0002H
+
+   3
+
+   ```assembly
+   assume cs:code,ds:data,ss:stack
+   
+   code segment
+   
+   start:	mov ax,stack
+   		mov ss,ax
+   		mov sp,16
+   		
+   		mov ax,data
+   		mov ds,ax
+   		
+   		push ds:[0]
+   		push ds:[2]
+   		pop  ds:[2]
+   		pop  ds:[0]
+   		
+   		mov ax,4c00h
+   		int 21h
+   code ends
+   
+   data segment
+   	dw 0123H,0456H
+   data ends
+   
+   stack segment
+   	dw 0,0
+   stack ends
+   
+   end start
+   ```
+
+   ![1537616395409](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537616395409.png)
+
+   1. above
+   2. cs=  076AH  ss= 076EH ds= 076DH
+   3. ​                            X+4H          X+3H
+
+   4
+
+   ![1537617621089](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537617621089.png)
+
+   ![1537617644618](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537617644618.png)
+
+   ![1537617664048](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537617664048.png)
+
+   There is only (3) can perform correctly.Because code segment is the first code to perform ,that means cs:ip points to the instruction "mov ax,stack", when loaded in memory unit.
+
+   5
+
+   ```assembly
+   assume cs:code
+   
+   a segment
+   	db 1,2,3,4,5,6,7,8
+   a ends
+   
+   b segment
+   	db 1,2,3,4,5,6,7,8
+   b ends
+   
+   c segment
+   	db 0,0,0,0,0,0,0,0
+   c ends
+   
+   code segment
+   
+   start:
+   	mov ax,a
+   	mov ds,ax
+   	
+   	mov ax,b
+   	mov es,ax
+   	
+   	mov bx,0
+   	mov cx,8
+   	
+     s:mov al,ds:[bx]   
+       add al,es:[bx]
+     	mov dx,c
+     	mov ss,dx
+     	mov ss:[bx],al;    
+     	inc bx
+     	loop s
+     	
+   ;s: mov ax,b
+     ;	mov es,ax
+     ;	mov al,ds:[bx]
+     ; add al,es:[bx]
+     ;	mov dx,c
+     ;	mov es,dx
+     ;	mov es:[bx],al;
+     ;	inc bx
+     ;	loop s
+     
+     	mov ax,4c00h
+     	int 21h
+     	
+   code ends
+   
+   end start
+     	
+   	
+   ```
+
+   ![1537619701998](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537619701998.png)
+
+   ![1537620110747](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537620110747.png)
+
+   6 use push to accomplish the function.
+
+   ```assembly
+   assume cs:code
+   
+   a segment
+   	dw 1,2,3,4,5,6,7,8,9,0ah,0bh,0ch,0dh,0eh,0fh,0ffh
+   a ends
+   
+   b segment
+   	dw 0,0,0,0,0,0,0,0
+   b ends
+   
+   code segment
+   
+   start:
+   	mov ax,b
+   	mov ss,ax
+   	mov sp,16   ;init the stack
+   	
+   	mov bx,0
+   	mov cx,8
+   	
+   	mov ax,a
+   	mov ds,ax
+   	
+     s:push ds:[bx]
+       add bx, 2
+       loop s
+       
+       mov ax,4c00h
+       int 21h
+       
+   code ends
+   
+   end start	 
+   ```
+
+   ![1537621367582](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537621367582.png)
+
+
+
+## Chapter 7
+
+1. 
+
+   ```assembly
+   ;7.4
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db 'BaSiC'
+   	db 'iNfOrMation'
+   datasg ends
+   
+   codesg segment
+   start:
+   	mov ax,datasg
+   	mov ds,ax
+   	
+   	mov bx,0
+   	mov cx,5
+   	
+     s:mov al,[bx]
+     	and al,11011111B
+     	mov [bx],al
+     	inc bx
+     	loop s
+     	
+     	mov bx,5
+     	mov cx,11
+    s0:mov al,[bx]
+   	or  al,00100000B
+   	mov [bx],al
+   	inc bx
+   	loop s0
+   	
+   	mov ax,4c00h
+   	int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+   ![1537623409369](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537623409369.png)
+
+   ```
+   ;7.6 improved 
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db 'BaSiC'
+   	db 'iNfOrMation'
+   datasg ends
+   
+   codesg segment
+   start:
+   	mov ax,datasg
+   	mov ds,ax
+   	
+   	mov bx,0
+   	mov cx,5
+   	
+     s:
+       mov al,0[bx]      ;locate the character of the first string 
+     	and al,11011111B
+     	mov 0[bx],al      
+     	
+     	mov al,5[bx]      ;locate the character of the second string
+   	or  al,00100000B
+   	mov 5[bx],al
+   	
+     	inc bx
+     	loop s
+     	
+     	mov bx,5
+     	mov cx,11
+   
+   	mov ax,4c00h
+   	int 21h
+   
+   codesg ends
+   
+   end start
+   
+   ```
+
+2. 
 
 
