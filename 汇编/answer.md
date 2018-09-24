@@ -554,7 +554,7 @@ can't revise the data.
    1. the content are the machine code of instruction.from "mov ax,cx" to "loop s"
    2. the content are the machine code of instruction.The total Byte are shown in the value of cs().We can derive the information through counting the Byte number of content that we are to copy,that is to say, the machine code that is correspond to the instruction.
 
-   ```scss
+   ```assembly
    assume cs:code
    code segment
    
@@ -1064,7 +1064,7 @@ can't revise the data.
 
    ![1537623409369](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537623409369.png)
 
-   ```
+   ```assembly
    ;7.6 improved 
    assume cs:codesg,ds:datasg
    
@@ -1105,6 +1105,377 @@ can't revise the data.
    
    ```
 
+   ```assembly
+   ;problem7.2
+   ;7.6 improved 
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db 'welcome to masm!'
+   	db '................'
+   datasg ends
+   
+   codesg segment
+   start:
+   	mov ax,datasg
+   	mov ds,ax
+   	
+   	mov si,0
+   	mov di,16
+   	
+   	mov cx,8
+     s:
+       mov ax,[si]      
+       mov [di],ax
+     	add si,2
+       add di,2
+     	loop s
+     	
+     	mov bx,5
+     	mov cx,11
+   
+   	mov ax,4c00h
+   	int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+   ```assembly
+   ;problem7.2
+   ;7.6 improved 
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db 'welcome to masm!'
+   	db '................'
+   datasg ends
+   
+   codesg segment
+   start:
+   	mov ax,datasg
+   	mov ds,ax
+   	
+   	mov si,0
+   	
+   	mov cx,8
+     s:
+       mov ax,[si]      
+       mov 16[si],ax
+     	add si,2
+     	
+     	loop s
+     	
+     	mov bx,5
+     	mov cx,11
+   
+   	mov ax,4c00h
+   	int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+   ```assembly
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db	'1. file         '
+   	db	'2. edit	 	 '
+   	db 	'3. search		 '
+   	db	'4.	view		 '
+   	db 	'5.	options      '
+   	db	'6.	help		 '
+   datasg ends
+   
+   codesg segment
+    start:
+    		mov ax,datasg
+    		mov ds,ax
+    		
+    		mov bx,0
+    		mov cx,6
+    		
+    	  s:mov al,3[bx]
+    	    and al,1101111b
+    	    mov 3[bx],al
+    	    add bx,16
+    	    loop s
+    	    
+    		mov ax,4c00h
+   		int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+   ```assembly
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db	'ibm             '
+   	db	'dec             '
+   	db 	'dos             '
+   	db	'vax         	 '
+   datasg ends
+   
+   codesg segment
+    start:
+    		mov ax,datasg
+    		mov ds,ax
+    		
+    		mov bx,0
+    		mov cx,4
+    		
+    	 s0:mov dx,cx		;store the outer cx value
+    	 	mov si,0
+    		mov cx,3		;set the inner cricumstance times
+    	  s:mov al,[bx][si]
+    	    and al,1101111b
+    	    mov [bx][si],al
+    	    inc si
+    	    loop s
+    	    
+    	    add bx,16
+    	    mov cx,dx		;recover the outer cs value
+    	    loop s0			;cx--
+    	    
+    		mov ax,4c00h
+   		int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+   ```assembly
+   assume cs:codesg,ds:datasg
+   
+   datasg segment
+   	db	'ibm             '
+   	db	'dec             '
+   	db 	'dos             '
+   	db	'vax         	 '
+   	dw 0		;define a word to temporarily store cx value
+   datasg ends
+   
+   codesg segment
+    start:
+    		mov ax,datasg
+    		mov ds,ax
+    		
+    		mov bx,0
+    		mov cx,4
+    		
+    	 s0:mov ds:[40H],cx		;store the outer cx value
+    	 	mov si,0
+    		mov cx,3		;set the inner cricumstance times
+    	  s:mov al,[bx][si]
+    	    and al,1101111b
+    	    mov [bx][si],al
+    	    inc si
+    	    loop s
+    	    
+    	    add bx,16
+    	    mov cx,ds:[40H]		;recover the outer cs value
+    	    loop s0			;cx--
+    	    
+    		mov ax,4c00h
+   		int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+   ##### Generally speaking,we should both use stack when needing to store data temporarily
+
+   ```assembly
+   assume cs:codesg,ss:stacksg ds:datasg
+   
+   datasg segment
+   	db	'ibm             '
+   	db	'dec             '
+   	db 	'dos             '
+   	db	'vax         	 '
+   datasg ends
+   
+   stacksg segment
+   	dw 0,0,0,0,0,0,0,0;define a stack using to be stack segment,capacity is 16B
+   stacksg ends
+   	
+   codesg segment
+    start:
+    		mov ax,stacksg
+    		mov ss,ax	
+    		mov sp,16	;init stack
+    		
+    		mov ax,datasg
+    		mov ds,ax	;init ds
+    		
+    		mov bx,0
+    		mov cx,4
+    		
+    	 s0:push cx			;push the outer cx value
+    	 	mov si,0
+    		mov cx,3		;set the inner cricumstance times
+    	  s:mov al,[bx][si]
+    	    and al,1101111b
+    	    mov [bx][si],al
+    	    inc si
+    	    loop s
+    	    
+    	    add bx,16
+    	    pop cx			;recover the outer cs value
+    	    loop s0			;cx--
+    	    
+    		mov ax,4c00h
+   		int 21h
+   
+   codesg ends
+   
+   end start
+   ```
+
+
+
+#### lab6
+
+- 1 11011111B no identify
+  2 TAB can't replace space
+
+- ```assembly
+  assume cs:codesg,ss:stacksg,ds:datasg
+  
+  stacksg segment
+  	dw 0,0,0,0,0,0,0,0
+  stacksg ends
+  
+  datasg segment
+  	db	'1. display      '
+  	db	'2. brows        '
+  	db 	'3. replace      '
+  	db	'4. modify       '
+  datasg ends
+  	
+  codesg segment
+   start:
+   		mov ax,stacksg
+   		mov ss,ax	
+   		mov sp,16	;init stack
+   		
+   		mov ax,datasg
+   		mov ds,ax	;init ds
+   		
+   		mov bx,0
+   		mov cx,4
+   		
+   	 s0:push cx			;push the outer cx value
+   	 	mov si,0
+   		mov cx,4		;set the inner cricumstance times
+   	  s:mov al,3[bx][si]
+   	    and al,0dfh
+   	    mov 3[bx][si],al
+   	    inc si
+   	    loop s
+   	    
+   	    add bx,16
+   	    pop cx			;recover the outer cs value
+   	    loop s0			;cx--
+   	    
+   		mov ax,4c00h
+  		int 21h
+  
+  codesg ends
+  
+  end start
+  ```
+
+
+![1537690828918](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537690828918.png)
+
+
+
+## Chapter 8
+
+1. Detail revise thinking process
+
+   ```assembly
+   mov ax,seg
+   mov ds,ax
+   mov bx,60h		;find the record address,ds:bx
+   
+   mov word ptr [bx+0ch],38
+   mov word ptr [bx+0eh],70
+   
+   mov si,0
+   mov byte ptr [si+bx+10h],'V'
+   
+   inc si
+   mov byte ptr [si+bx+10h],'A'
+   
+   inc si
+   mov byte ptr [si+bx+10h],'X'
+   ```
+
+   ```c
+   struct company {	/*define  struct of a company record
+   	char cn[3];
+   	char hn[9];
+       int pm;
+       int sr;
+       char cp[3];		
+   	};
+   struct company dec={"DEC","Ken Olsen",137,40,"PDP"}; /* define valuable of a company record.There is a company record in memory unit
+   
+   main()
+   {
+       int i;
+       dec.pm=38;
+       dec.sr=dec.sr+70;
+       i=0;
+       dec.cp[i]='V';
+       i++;
+       dec.cp[i]='A';
+       i++;
+       dec.cp[i]='X';
+       return 0;
+   }
+   ```
+
+   ```assembly
+   mov ax,seg
+   mov ds,ax
+   mov bx,60h		;record the beginning address to bx
+   
+   mov word ptr [bx].0ch,38
+   
+   add word ptr [bx].0eh,70
+   
+   mov si,0
+   mov byte ptr [bx].10h[si],'V'
+   inc si
+   mov byte ptr [bx].10h[si],'A'
+   inc si
+   mov byte ptr [bx].10h[si],'X'
+   ```
+
 2. 
 
+   ```assembly
+   div byte ptr ds:[0]
+   
+   ```
+
+
+
+
+
+
+
+
+​	
 
