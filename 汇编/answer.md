@@ -64,7 +64,7 @@
 
    all times is four times.The first times changes after reading 1 instruction.The second times changes after reading 2 instruction.The third times changes after reading 3 instruction.the last times changes after performing 3 instruction.在执行完jmp ax后。最后IP中的值是0。
 
-#### lab1
+lab1
 
 1. (1)Use Debug to write the following procedure segmentation into the memory,performing line by line,at the same time, watching the change regard the contents of relative registers.
 
@@ -220,7 +220,7 @@ can't revise the data.
    mov sp,0   ;need attention
    ```
 
-#### lab2
+### lab2
 
 1. 
 
@@ -276,7 +276,7 @@ can't revise the data.
    end
    ```
 
-#### lab3
+### lab3
 
 
 
@@ -512,7 +512,7 @@ can't revise the data.
    end
    ```
 
-#### lab4
+### lab4
 
 1. programming.convert data from 0~63(3FH) to 0:200~0:23F in memory in turn.
 
@@ -777,8 +777,7 @@ can't revise the data.
    end start
    ```
 
-
-#### lab5
+### lab5
 
 1. ```assembly
    assume cs:code,ds:data,ss:stack
@@ -1342,7 +1341,7 @@ can't revise the data.
 
 
 
-#### lab6
+### lab6
 
 - 1 11011111B no identify
   2 TAB can't replace space
@@ -1498,7 +1497,7 @@ can't revise the data.
    ```
 
 
-#### lab7
+### lab7
 
 1. 
 
@@ -1602,8 +1601,270 @@ can't revise the data.
    ![1537862723461](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537862723461.png)
 
 
+## Chapter 9
+
+#### offset
+
+```assembly
+;problem 9.1
+assume cs:codesg 
+codesg segment
+	s:	mov ax,bx
+		mov si,offset s
+		mov di,offset s0
+		mov ax,cs:[si]
+		mov cs:[di],ax
+		
+	s0: nop		;the machine code of nop takes 1 B
+		nop
+codesg ends
+end s
+```
+
+#### jmp
+
+1. #### jmp short sign
+
+2. #### jmp near ptr sign
+
+   ```assembly
+   assume cs:codesg
+   
+   codesg segment
+   
+   start:	
+   	mov ax,0
+   	jmp short s
+   	add ax,1
+     s:inc ax
+     
+    codesg ends		;ax=1(jmp)
+    
+    end start		
+   ```
 
 
 
-​	
+   ![1537865266604](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537865266604.png)
+
+3. #### jmp far ptr sign(intersegment transfer or far transfer)
+
+   ```assembly
+   assume cs:codesg
+   
+   codesg segment
+   	start:mov ax,0
+   		  mov bx,0
+   		  jmp far ptr s
+   		  db  256 dup (0)
+   		s:add ax,1
+   		  inc ax
+   		
+   codesg ends
+   
+   end start
+   ```
+
+4. #### jmp word ptr the address of memory unit(intrasegment transfer)
+
+   ```assembly
+   mov ax,0123H
+   mov ds:[0],ax
+   jmp word ptr ds:[0]		;(ip)=0123h
+   
+   mov ax,0123h
+   mov [bx],ax
+   jmp word ptr [bx]		;(ip)=0123h
+   
+   
+   ```
+
+5. jmp dword ptr the address of memory unit(intersegment transfer)	
+
+   high address locates the direct segment address  
+
+   low address locates the direct offset address 
+
+   (CS)=(the address of memory unit+2)
+
+   (IP)=(the address of memory unit)
+
+   ```assembly
+   mov ax,0123h
+   mov ds:[0],ax
+   mov word ptr ds:[2],0		;(CS)=0	
+   jmp dword ptr ds:[0]		;(IP)=0123h
+   
+   
+   mov ax,0123h
+   mov [bx],ax
+   mov word ptr [bx+2],0		;(CS)=0
+   jmp dword ptr [bx]			;(IP)=0123h
+   ```
+
+#####  Test 9.1
+
+1. 
+
+   ```assembly
+   assume cs:codesg
+   
+   data segment
+   	db 3 dup (0)	;just need word [1]=0
+   data ends
+   
+   codesg segment
+   
+   start:
+   	mov ax,data
+   	mov ds,ax
+   	mov bx,0
+   	jmp word ptr [bx+1]
+     
+    codesg ends		
+    
+    end start	
+   ```
+
+   ```assembly
+     assume cs:codesg
+     
+     data segment
+     	dd 12345678h
+     data ends
+     
+     codesg segment
+     
+     start:
+     	mov ax,data
+     	mov ds,ax
+     	mov bx,0
+     	mov word ptr [bx],0		;(ip)=0
+     	mov [bx+2],cs			;(cs)=cs
+     	
+     	jmp dword ptr ds:[0]
+       
+      codesg ends		
+      
+      end start	 
+   ```
+
+​         ![1537869334027](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537869334027.png)
+
+​     3.(CS)=0006H	(IP)=00BEH
+
+##### test 9.2
+
+1. 
+
+2. ```assembly
+   assume cs:code 
+   code segment
+   	start:	
+   		mov ax,2000h
+   		mov ds,ax
+   		mov bx,0
+   	  s:
+   	  	mov cl,ds:[bx]
+   	  	mov ch,0
+   	  	jcxz ok
+   	  	inc bx	  
+   	    jmp short s
+   	 ok:mov dx,bx
+   	 
+   	 	mov ax,4c00h
+   	 	int 21h
+   code ends 
+   ```
+
+   ![1537876506446](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537876506446.png)
+
+##### test 9.3
+
+1. 
+
+2. ```assembly
+   assume cs:code 
+   code segment
+   	start:	
+   		mov ax,2000h
+   		mov ds,ax
+   		mov bx,0
+   	  s:
+   	  	mov cl,ds:[bx]
+   	  	mov ch,0
+   	  	inc cx		
+   	  	inc bx	  
+   	    loop s		;first (cx)=(cx)-1,that mean that stop circumstance when cx=1. 
+   	    
+   	 ok:
+   	 	dec bx
+   	 	mov dx,bx
+   	 
+   	 	mov ax,4c00h
+   	 	int 21h
+   code ends 
+   end start
+   ```
+
+   ![1537877489183](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537877489183.png)
+
+3. summary   
+
+   jmp short sign
+
+   jmp near ptr sign
+
+   jcxz     sign
+
+   loop    sign
+
+   Facilitate the floating assembly of the program segment in memory.
+
+### lab 8
+
+- 
+
+  ```assembly
+  assume cs:codesg
+  codesg segment
+  	
+  	mov ax,4c00h
+  	int 21h
+  start:
+  		mov ax,0
+  	s:	nop
+  		nop
+  		
+  		mov di,offset s
+  		mov si,offset s2
+  		mov ax,cs:[si]
+  		mov cs:[di],ax
+  		
+  	s0: jmp short s
+  	
+  	s1: mov ax,0		;F6
+  		int 21h			;F9
+  		mov ax,0		;FB
+  		
+  	s2: jmp short s1
+  		nop
+  		
+  codesg ends
+  end start
+  ```
+
+  the program can return properly.
+
+  Attention,**There is a slight need to move forward or backward when calculating displacement.**
+
+  ![1537881434456](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537881434456.png)
+
+  Because All code in machine are machine code.when performing "mov cs:[di],ax",the sign s that is corresponding instruction turns to EBF6(the value is s2-s1that represents in complemental code,that's -(3+2+3+2)=-10),thus
+
+  ![1537878963981](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537878963981.png)
+
+
+
+
 
