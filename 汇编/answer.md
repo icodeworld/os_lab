@@ -1466,12 +1466,140 @@ can't revise the data.
 2. 
 
    ```assembly
-   div byte ptr ds:[0]
+   mov dx,1
+   mov ax,86a1h
+   mov bx,100
+   div bx
+   ```
+
+   ```assembly
+   assume ds:data,cs:code
    
+   data segment
+   	dd 100001
+   	dw 100
+   	db 9 dup (0)
+   data ends
+   
+   code segment
+   start:
+       mov ax,data
+       mov ds,ax
+       mov ax,ds:[0]
+       mov dx,ds:[2]
+       div word ptr ds:[4]
+       mov ds:[6],ax
+       
+       mov ax,4c00h
+       int 21h
+   code ends
+   
+   end start
    ```
 
 
+#### lab7
 
+1. 
+
+2. ```assembly
+   assume cs:code 
+   
+   data segment
+   	db '1975','1976','1977','1978','1979','1980','1981','1982','1983'		;year
+   	db '1984','1985','1986','1987','1988','1989','1990','1991','1992'
+   	db '1993','1994','1995'
+   	
+   	dd 16,22,382,1356,2390,8000,16000,24486,50065,97479,140417,197514
+   	dd 345980,590827,803530,1183000,1843000,2759000,3753000,4649000,5937000 ;summ
+   	
+   	dw 3,7,9,13,28,38,130,220,476,778,1001,1442,2258,2793,4037,5635,8226
+   	dw 11542,14430,15257,17800												;ne 
+   	
+   	dw 4 dup (0)  			 ;store the the entry of 3 kinds of data item and cx 
+   data ends
+   
+   table segment
+   	db 21 dup ('year summ ne aa ')
+   table ends
+   
+   
+   code segment
+   start:
+         
+           mov ax,data
+           mov ds,ax           ;init ds,making it point to the data
+   		
+           mov ax,table
+           mov es,ax
+   
+           mov bx,0
+   		mov cx,21
+   		mov word ptr ds:[0d2h],0
+   		mov word ptr ds:[0d4h],54h
+   		mov word  ptr ds:[0d6h],0a8h	;store the the entry of 3 kinds of data item
+   
+   	 s0:
+   		mov word ptr ds:[0d8h],cx   ;Temporarily store cx variables 
+   	 	mov si,0
+   	 	mov cx,4
+   	 	
+   	 s1:
+   		mov bp,ds:[0d2h] ;get the address of year 
+   	 	mov al,ds:[bp][si]	;convert year
+   	 	mov es:[bx].0h[si],al
+   	 	inc si
+   	 	loop s1
+   	 	
+   	 	
+   		mov bp,ds:[0d4h];Low 16 bits in a word cell are stored in ax
+   	    mov ax,ds:[bp]
+   		mov es:5[bx],ax
+   		mov ax,ds:2[bp] ;high 16 bits in a word cell are stored in ax
+   		mov es:7[bx],ax
+       
+   	
+   	 	mov bp,ds:[0d6h];get the address of ne
+   		mov ax,ds:[bp]
+   		mov es:0ah[bx],ax
+   		
+   		
+   		add bx,16
+   		
+   		mov ax,ds:[0d2h]
+   		add ax,4
+   		mov ds:[0d2h],ax
+   		
+   		mov ax,ds:[0d4h]
+   		add ax,4
+   		mov ds:[0d4h],ax
+   		
+   		mov ax,ds:[0d6h]
+   		add ax,2
+   		mov ds:[0d6h],ax
+   		
+   		mov cx,ds:[0d8h]
+   		loop s0
+   				
+   		mov cx,21			;count the average income
+   		mov bx,0
+   	 s2:mov ax,es:5[bx]		;low-16 bits
+   		mov dx,es:7[bx]		;high-16 bits
+   		div word ptr es:0ah[bx]
+   		mov es:0dh[bx],ax
+   		
+   		add bx,16
+   		loop s2
+   		
+   	 	mov ax,4c00h
+   		int 21h
+   	
+   code ends
+   
+   end start
+   ```
+
+   ![1537862723461](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537862723461.png)
 
 
 
