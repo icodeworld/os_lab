@@ -1864,7 +1864,631 @@ end s
 
   ![1537878963981](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537878963981.png)
 
+### lab 9
+
+1. 
+
+   ```assembly
+   assume cs:codesg
+   
+   
+   
+   codesg segment
+   
+   start:
+   	mov ax,0b800h
+   	mov ds,ax
+   	mov bx,780h			;row
+   						;write character;green
+   	mov ds:40h[bx],0277h
+   	mov ds:42h[bx],0265h
+   	mov ds:44h[bx],026ch
+   	mov ds:46h[bx],0263h
+   	mov ds:48h[bx],026fh
+   	mov ds:4ah[bx],026dh
+   	mov ds:4ch[bx],0265h
+   	mov ds:4eh[bx],0220h
+   	mov ds:50h[bx],0274h
+   	mov ds:52h[bx],026fh
+       mov ds:54h[bx],0220h
+   	mov ds:56h[bx],026dh
+   	mov ds:58h[bx],0261h
+   	mov ds:5ah[bx],0273h
+   	mov ds:5ch[bx],026dh
+       mov ds:5eh[bx],0221h
+   	
+   	
+   	
+   	
+    codesg ends		
+    
+    end start	 
+   ```
+
+![1537949096444](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537949096444.png)
+
+2.
+
+```assembly
+assume cs:codesg
 
 
 
+codesg segment
 
+start:
+	mov ax,0b800h
+	mov ds,ax
+	mov bx,780h			;row
+						;write character;The bottom of the green red
+	mov ds:40h[bx],2477h
+	mov ds:42h[bx],2465h
+	mov ds:44h[bx],246ch
+	mov ds:46h[bx],2463h
+	mov ds:48h[bx],246fh
+	mov ds:4ah[bx],246dh
+	mov ds:4ch[bx],2465h
+	mov ds:4eh[bx],2420h
+	mov ds:50h[bx],2474h
+	mov ds:52h[bx],246fh
+    mov ds:54h[bx],2420h
+	mov ds:56h[bx],246dh
+	mov ds:58h[bx],2461h
+	mov ds:5ah[bx],2473h
+	mov ds:5ch[bx],246dh
+    mov ds:5eh[bx],2421h
+	
+	
+	
+	
+ codesg ends		
+ 
+ end start	 
+```
+
+![1537949405786](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537949405786.png)
+
+3.
+
+```assembly
+assume cs:codesg
+
+
+
+codesg segment
+
+start:
+	mov ax,0b800h
+	mov ds,ax
+	mov bx,780h			;row
+						;write character;Blue on white
+	mov ds:40h[bx],7177h
+	mov ds:42h[bx],7165h
+	mov ds:44h[bx],716ch
+	mov ds:46h[bx],7163h
+	mov ds:48h[bx],716fh
+	mov ds:4ah[bx],716dh
+	mov ds:4ch[bx],7165h
+	mov ds:4eh[bx],7120h
+	mov ds:50h[bx],7174h
+	mov ds:52h[bx],716fh
+    mov ds:54h[bx],7120h
+	mov ds:56h[bx],716dh
+	mov ds:58h[bx],7161h
+	mov ds:5ah[bx],7173h
+	mov ds:5ch[bx],716dh
+    mov ds:5eh[bx],7121h
+	
+	
+	
+	
+ codesg ends		
+ 
+ end start	 
+```
+
+![1537949631738](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537949631738.png)
+
+```assembly
+assume cs:codesg
+
+
+
+codesg segment
+
+start:
+	mov ax,0b800h
+	mov ds,ax
+	mov bx,780h			;row
+	
+							;write character;The bottom of the green red
+	mov ds:40h[bx],2477h
+	mov ds:42h[bx],2465h
+	mov ds:44h[bx],246ch
+	mov ds:46h[bx],2463h
+	mov ds:48h[bx],246fh
+	mov ds:4ah[bx],246dh
+	mov ds:4ch[bx],2465h
+	mov ds:4eh[bx],2420h
+	mov ds:50h[bx],2474h
+	mov ds:52h[bx],246fh
+    mov ds:54h[bx],2420h
+	mov ds:56h[bx],246dh
+	mov ds:58h[bx],2461h
+	mov ds:5ah[bx],2473h
+	mov ds:5ch[bx],246dh
+    mov ds:5eh[bx],2421h
+	
+						;write character;green
+	mov ds:20h[bx],0277h
+	mov ds:22h[bx],0265h
+	mov ds:24h[bx],026ch
+	mov ds:26h[bx],0263h
+	mov ds:28h[bx],026fh
+	mov ds:2ah[bx],026dh
+	mov ds:2ch[bx],0265h
+	mov ds:2eh[bx],0220h
+	mov ds:30h[bx],0274h
+	mov ds:32h[bx],026fh
+    mov ds:34h[bx],0220h
+	mov ds:36h[bx],026dh
+	mov ds:38h[bx],0261h
+	mov ds:3ah[bx],0273h
+	mov ds:3ch[bx],026dh
+    mov ds:3eh[bx],0221h
+	
+							;write character;Blue on white
+	mov ds:60h[bx],7177h
+	mov ds:62h[bx],7165h
+	mov ds:64h[bx],716ch
+	mov ds:66h[bx],7163h
+	mov ds:68h[bx],716fh
+	mov ds:6ah[bx],716dh
+	mov ds:6ch[bx],7165h
+	mov ds:6eh[bx],7120h
+	mov ds:70h[bx],7174h
+	mov ds:72h[bx],716fh
+    mov ds:74h[bx],7120h
+	mov ds:76h[bx],716dh
+	mov ds:78h[bx],7161h
+	mov ds:7ah[bx],7173h
+	mov ds:7ch[bx],716dh
+    mov ds:7eh[bx],7121h
+	
+	
+	
+	
+ codesg ends		
+ 
+ end start	 
+```
+
+![1537950299047](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537950299047.png)
+
+
+
+## Chapter 10
+
+1. ret retf
+
+   ret -  		pop IP
+
+   1. (IP)=((ss)*16+(sp))
+   2. (sp)=(sp)+2
+
+   retf -              pop IP;pop CS
+
+   1. (IP)=((ss)*16+(sp))
+   2. (sp)=(sp)+2
+   3. (CS)=((ss)*16+(sp))
+   4. (sp)=(sp)+2
+
+   test 10.1
+
+   ```assembly
+   assume cs:code 
+   
+   stack segment
+   	db 16 dup (0)
+   stack ends
+   
+   code segment
+   start:	mov ax,stack
+   		mov ss,ax
+   		mov sp,16
+   		mov ax,1000h
+   		push ax
+   		mov ax,0
+   		push ax
+   		retf
+   code ends
+   
+   end start
+   ```
+
+   ![1537951735390](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537951735390.png)
+
+2. call
+
+   1. push the current IP or CS and IP
+
+   2. convert
+
+   3. can't accomplish short convert
+
+3.   call sign       = push IP(the first Byte offset address after call instruction)  ; jmp near ptr sign
+
+   1. (sp)=(sp)-2
+
+      ((ss)*16+(sp))=(IP)
+
+   2. (IP)=(IP)+16bit shift(the address of sign - the first Byte address after call instruction)
+
+   test 10.2
+
+> | memory address | machine code | assembly instruction |          perform           |
+> | :------------: | :----------: | :------------------: | :------------------------: |
+> |     1000:0     |   b8 00 00   |       mov ax,0       |            ax=0            |
+> |     1000:3     |   e8 01 00   |        call s        | (stored)ip=6 (current)ip=7 |
+> |     1000:6     |      40      |        inc ax        |                            |
+> |     1000:7     |      58      |       s:pop ax       |          ax=0006H          |
+
+![1537953460651](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537953460651.png)
+
+4. call far ptr sign   = push CS ;push IP(the first Byte offset address after call instruction) ; jmp far ptr sign
+
+   1. (sp)=(sp)-2
+
+      ((ss)*16+(sp))=(CS)
+
+      (sp)=(sp)-2
+
+      ((ss)*16+(sp))=(IP)
+
+   2. (CS)=the segmental address of sign
+
+      (IP)=the offset address of sign
+
+
+   test 10.3
+
+   ```assembly
+       mov ax,0
+       call far ptr s		;ss:[0ch]=0008h,ss:[0eh]=1000h
+       inc ax				
+   s:	pop ax				;ax=0008h
+   	add ax,ax			;ax=0010h
+   	pop bx				;bx=1000h
+   	add ax,bx			;ax=1010h
+   ```
+
+   ![1537954272710](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537954272710.png)
+
+   ![1537954335708](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537954335708.png)
+
+   5. call 16b reg		;push IP; jmp 16b reg
+
+   test 10.4
+
+   ```assembly
+   mov ax,6
+   call ax
+   inc ax
+   mov bp,sp
+   add ax,[bp]		;ax=0006h+0005h=000bh
+   ```
+
+   ![1537955154256](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1537955154256.png)
+
+test 10.5
+
+```assembly
+assume cs:code
+stack segment
+	dw 8 dup (0)
+stack ends
+
+code segment
+	start: 	
+		mov ax,stack
+		mov ss,ax
+		mov sp,16
+		mov ds,ax
+		mov ax,0
+		call word ptr ds:[0eh]
+		inc ax
+		inc ax
+		inc ax
+		
+		mov ax,4c00h
+		int 21h
+code ends
+end start	
+```
+
+Push the 0011h into stack and IP=0 after performing "call ",cs:ip points to "mov ax,stack",push the 0011h in stack and IP=0011h when performing "call"again,cs:ip points to "inc ax" ...ax=3
+
+(2)
+
+```assembly
+assume cs:code
+data segment
+	dw 8 dup (0)
+data ends
+
+code segment
+	start:
+		mov ax,data
+		mov ss,ax
+		mov sp,16
+		mov word ptr ss:[0],offset s
+		mov ss:[2],cs
+		call dword ptr ss:[0]
+		nop					;1B
+	  s:
+	  	mov ax,offset s
+	  	sub ax,ss:[0ch]
+	  	mov bx,cs
+	  	sub bx,ss:[0eh]
+	  	
+	  	mov ax,4c00h
+	  	int 21h
+code ends
+end start
+```
+
+(ax)=1,(bx)=0
+
+10.10
+
+sub-program
+
+```assembly
+assume cs:code
+data segment
+	dw 1,2,3,4,5,6,7,8
+	dd 0,0,0,0,0,0,0,0
+data ends
+
+code segment
+
+   start:mov ax,data
+   	 	 mov ds,ax
+   	 	 mov si,0		;ds:si points to the fist group word unit
+   	 	 mov di,16		;ds:di points to the second group dword unit
+   	 	 
+   	 	 mov cx,8
+   	   s:mov bx,[si]
+   	     call cube
+   	     mov [di],ax
+   	     mov 2[di],dx	
+   	     add si,2		;ds:si points to next word unit
+   	     add di,4		;ds:di points to next dword unit
+   	     loop s
+   	     
+   	     mov ax,4c00h
+   	     int 21h
+   	     
+   	     ;illustration: Calculate the cubic of N
+   	     ;parameter:    (bx)=N
+   	     ;result:		(dx:ax)=N^3
+   	 
+    cube:mov ax,bx
+    	 mul bx
+    	 mul bx
+    	 ret
+    
+code ends
+end start
+   	 	
+```
+
+```assembly
+assume cs:code
+data segment
+	db 'conversation'
+data ends
+
+code segment
+	start: mov ax,data
+		   mov ds,ax
+		   mov si,0			;begining address
+		   mov cx,12		;length
+		   call capital
+		   
+		   mov ax,4c00h
+		   int 21h
+
+         ;illustration: Capitalization
+   	     ;parameter:    (cx)=l
+   	     ;result:		(ds:si)=capitalization
+
+  capital:  and byte ptr [si],11011111b	;transform the ds:si that points to unit to capitalization
+            inc si						;ds:si point to next unit
+            loop capital
+            ret  4
+code ends
+end start
+```
+
+```assembly
+assume cs:code
+data segment
+	db 'word',0
+	db 'unix',0
+	db 'wind',0
+	db 'good',0
+data ends
+
+code segment
+
+  start:
+  		mov ax,data
+  		mov ds,ax
+  		mov bx,0
+  		
+  		mov cx,4
+  	  s:mov si,bx
+  	  	call capital
+  	  	add bx,5
+  	  	loop s
+  	  	
+  	  	mov ax,4c00h
+  	  	int 21h
+  	  	
+  	  	;illustration: Capitalization 
+   	     ;parameter:    (ds:si)=capitalization 
+   	     ;result:		 non
+  	  	
+capital:mov cl,[si]
+		mov ch,0
+		jcxz ok
+		and byte ptr [si],11011111b
+		inc si
+		jmp short capital
+	 ok:ret
+	 
+code ends
+end start
+
+
+
+;improve
+	capital:  push cx
+			  push si
+			  
+	 change:  mov cl,[si]
+              mov ch,0
+              jcxz ok
+              and byte ptr [si],11011111b
+              inc si
+              jmp short capital
+           
+         ok:  pop si
+         	  pop cx
+         	  ret
+			
+```
+
+### lab 10
+
+```assembly
+;print char
+assume cs:code
+data segment
+	db 'Welcome to masm!',0
+data ends
+
+stack segment 
+	dw 8 dup (0)
+stack ends
+
+code segment
+start:
+		mov ax,stack
+		mov ss,ax
+		mov sp,16
+		
+		mov dh,10	
+		mov dl,3		;8row,3list
+		
+		mov cl,2		;color
+		mov ax,data
+		mov ds,ax
+		mov si,0		;ds:si beginning address of read content
+		call show_str
+		
+		mov ax,4c00h
+		int 21h
+	
+	show_str:
+		push ax
+		push cx
+		push dx
+		push ss
+		push si		;Push into sub all registers the stack
+		
+		mov ax,0b800h
+		mov es,ax	;es:si points to the begining address of display 
+		
+	 
+		mov al,160
+		mul dh
+		mov bx,ax   ;(bx): locate the begining address in graph memory
+		
+		mov ah,0
+		mov al,2
+		dec dl
+		mul dl
+		add bx,ax   ;complete the relation of adress mapping
+		
+		
+		mov di,0	;char offset
+		mov si,0	;location offset
+		
+		mov al,cl	;store color
+		
+	s1:				;write character;green
+		mov ch,0					
+		mov cl,ds:[di]		;put the char into cl
+		jcxz ok
+		
+		mov ch,al
+		mov es:[si][bx],cx	;pour char and color into displace location 
+		
+		add si,2
+		inc di
+	
+	    jmp short s1
+	
+	ok:
+		pop si;
+		pop ss;
+		pop dx;
+		pop cx;
+		pop ax;
+		ret 
+		
+
+ code ends		
+ 
+ end start	
+```
+
+![1538047813494](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538047813494.png)
+
+10_2
+
+关键：时刻注意dx ,ax分别代表什么
+
+```assembly
+
+```
+
+![1538118481631](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538118481631.png)
+
+10_3
+
+关键点：
+
+1. 先考虑用什么存放什么。
+
+   ​        首先需要数据段用来指示显卡读入的位置，而该位置上存放着我们所需要的ASCII码，其次，由于需要用到一些子程序，从而需要用栈来保存内容。
+
+2. 考虑用什么程序以及需要调用什么。
+
+   -  首先，需要循环计算余数并放入中转栈（stack2）通过jcxz来判断是否继续计算，注意判断语句需放在计算余数之后，因为即便商为0，余数不为0，需要计入。
+
+   - 由于辗转相除的除法不属于div的使用范围，故调用divdw，只需将高位置0即可使用
+
+3. 注意保护需要用到的寄存器值及相关内容。
+
+   - 由于stack为dtoc和show_str共享，从而需要将sp入栈。
+
+4. 由于辗转相除法得到的是与正常读入相反的顺序，通常情况下优先采用栈来读取，而栈本质上也等于内存中的内容，故未减少麻烦，另定义一个数据段取名为stack2，用来存放逆序的ASCII码。
+
+```assembly
+
+```
+
+![1538133183020](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538133183020.png)
