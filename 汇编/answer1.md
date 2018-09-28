@@ -2462,7 +2462,60 @@ start:
 关键：时刻注意dx ,ax分别代表什么
 
 ```assembly
+;divdw
+assume cs:code,ss:stack
 
+stack segment 
+	dw 8 dup (0)
+stack ends
+
+code segment
+start:
+		mov ax,stack
+		mov ss,ax
+		mov sp,16
+		
+		mov ax,4240h
+		mov dx,000fh
+		mov cx,0ah
+		call divdw
+		
+		mov ax,4c00h
+		int 21h
+		
+		;名称：divdw
+		;功能:进行不会溢出的除法运算，被除数为dword型，除数为word型,结果为dword型
+		;参数;(ax)=dword型数据的低16位
+		;	  (dx)=dword型数据的高16位
+		;	  (cx)=除数
+		
+		;返回:(dx)=结果的高16位
+		;	  (ax)=结果的低16位
+		;	  (cx)=余数
+		
+  divdw:
+		;先计算高位，再计算低位
+		push bx			;保存需要用到的寄存器
+		push ax			;低位入栈
+
+		
+		mov ax,dx		;高位赋给ax
+		mov dx,0		;高位置0
+		
+		div cx     		;结果是 ax:商   dx:余数(rem(H/N)
+		mov bx,ax		;保存ax: int(H/N)
+
+		pop ax			
+		div cx			;dx:ax rem(H/N)*65536+L/N
+		
+		mov cx,dx		;余数赋给cx
+		add dx,bx		;高位相加
+		
+		pop bx
+		ret
+
+code ends
+end start	
 ```
 
 ![1538118481631](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538118481631.png)
@@ -2488,7 +2541,183 @@ start:
 4. 由于辗转相除法得到的是与正常读入相反的顺序，通常情况下优先采用栈来读取，而栈本质上也等于内存中的内容，故未减少麻烦，另定义一个数据段取名为stack2，用来存放逆序的ASCII码。
 
 ```assembly
+;数值显示
+assume cs:code,ss:stack
 
+data segment
+	db 16 dup (0)
+data ends
+
+stack segment 		;存放寄存器等
+	dw 8 dup (0)
+stack ends
+
+stack2 segment		;临时存放余数
+	dw 8 dup(0)	
+stack2 ends
+
+code segment
+
+	start:	
+		mov ax,stack
+		mov ss,ax
+		mov sp,16	;栈初始化用来保存寄存器值（栈不可以大？）
+		
+		mov ax,stack2
+		mov es,ax	;临时存放余数
+		
+		mov ax,12666
+		mov bx,data
+		mov ds,bx
+		mov si,0
+		
+		mov cx,0
+		
+		call dtoc
+			
+		mov di,0	;转换顺序
+		mov cx,si
+	s0:	mov al,es:[si-1]
+		mov ds:[di],al
+		dec si
+		inc di
+		loop s0
+
+	
+		mov dh,8
+		mov dl,3
+		mov ch,0
+		mov cl,2
+		
+		call show_str
+		
+		mov ax,4c00h
+		int 21h
+		
+	;名称：dtoc
+	;功能：将word型数据转变为表示十进制数的字符串，字符串以0为结尾符
+	;参数：(ax)=word型数据
+	      ;ds:si指向字符串的首地址
+	;返回：无
+	;应用举例：编程，将数据12666以十进制的形式在屏幕的8行3列，用绿色显示。
+		
+	dtoc:    push sp		;供以后的子程序共用一个栈
+
+		;无法使用div指令
+		count:			
+			mov dx,0	;高位置0 (dx)始终为0
+			mov cx,10	;除数 
+			call divdw	;调用可能溢出型除法  
+			mov bx,cx   ;余数保存在bx中,由于余数为0~9，所以ch=0,从而bh=0		
+			mov cx,ax	;商保存在cx中
+			
+			
+			mov es:[si],bl
+			add byte ptr es:[si],30H  ;转换为数字对应的ASCII码
+			
+
+			inc si		;存储在下一个字节
+			
+			jcxz o		;由于余数先执行，故判断放在执行程序之后
+						;当商为0时结束循环
+			
+			jmp count   ;辗转相除，计算下一个字节
+			
+		 o:
+		
+			pop sp
+			ret
+			
+		;名称：divdw
+		;功能:进行不会溢出的除法运算，被除数为dword型，除数为word型,结果为dword型
+		;参数;(ax)=dword型数据的低16位
+		;	  (dx)=dword型数据的高16位
+		;	  (cx)=除数
+		
+		;返回:(dx)=结果的高16位
+		;	  (ax)=结果的低16位
+			;	  (cx)=余数
+		 divdw:
+			;先计算高位，再计算低位
+			push bx			;保存需要用到的寄存器
+			push ax			;低位入栈
+
+			
+			mov ax,dx		;高位赋给ax
+			mov dx,0		;高位置0
+			
+			div cx     		;结果是 ax:商   dx:余数(rem(H/N)
+			mov bx,ax		;保存ax: int(H/N)
+
+			pop ax			
+			div cx			;dx:ax rem(H/N)*65536+L/N
+			
+			mov cx,dx		;余数赋给cx
+			add dx,bx		;高位相加
+			
+			
+			pop bx
+			ret	
+			
+		
+			
+	;名称：show_str
+	;功能：在指定的位置，用指定的颜色，显示一个用0结束的字符串
+	;参数：(dh)=行号（取值范围0~24),(dl)=列号(取值范围0~79),
+		  ;(cl)=颜色，ds:si指向字符串的首地址
+	;返回：无	
+	show_str:
+		push ax
+		push cx
+		push dx
+		push ss
+		push si		;Push into sub all registers the stack
+		
+		mov ax,0b800h
+		mov es,ax	;es:si points to the begining address of display 
+		
+	 
+		mov al,160
+		dec dh
+		mul dh
+		mov bx,ax   ;(bx): locate the begining address in graph memory
+		
+		mov ah,0
+		mov al,2
+		dec dl
+		mul dl
+		add bx,ax   ;complete the relation of adress mapping
+		
+		
+		mov di,0	;char offset
+		mov si,0	;location offset
+		
+		mov al,cl	;store color
+		
+	s1:				;write character;green
+		mov ch,0					
+		mov cl,ds:[di]		;put the char into cl
+		jcxz ok
+		
+		mov ch,al
+		mov es:[si][bx],cx	;pour char and color into displace location 
+		
+		add si,2
+		inc di
+	
+		jmp short s1
+	
+	ok:
+		pop si;
+		pop ss;
+		pop dx;
+		pop cx;
+		pop ax;
+		ret 
+			
+		
+code ends
+end start
 ```
 
 ![1538133183020](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538133183020.png)
