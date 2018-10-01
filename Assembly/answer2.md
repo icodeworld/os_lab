@@ -150,7 +150,7 @@
 
 ### lab 11
 
-1. 
+1. 转换大写
 
    ```assembly
    assume cs:code
@@ -209,7 +209,7 @@
    >
    > (2)<u>4N</u>    <u>0000</u>
 
-2. 
+2. 中断的详细过程
 
    > 中断过程(中断向量:中断处理程序的入口地址)
    >
@@ -235,7 +235,7 @@
    >
    >
 
-3. 
+3. 基本流程
 
    ```assembly
    assume cs:code
@@ -246,7 +246,9 @@
    		mov ax,4c00h
    		int 21h
    
-   do0:    显示字符串"overflow!"
+   do0:    保存现场
+   		显示字符串"overflow!"
+   		恢复现场
    		mov ax,4c00h
    		int 21h
    		
@@ -502,3 +504,6 @@
    code ends
    end start
    ```
+
+   <img src=http://thyrsi.com/t6/379/1538399316x1822611359.png />
+
