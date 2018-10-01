@@ -71,3 +71,434 @@
    >  add、sub、mul、div 、inc、or、and等运算指令影响flag
    >
    >  mov、push、pop等传送指令对flag没影响
+
+   ![1538291451642](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538291451642.png)
+
+   ![1538295448326](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538295448326.png)
+
+   ![1538295469723](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538295469723.png)
+
+3. test 11.3
+
+   ```assembly
+   ;统计F000:0处32个字节中,大小在[32,128]的数据的个数
+   assume cs:code
+   code segment
+   start:
+   mov	ax,0f000h
+   mov ds,ax
+   
+   mov bx,0
+   mov dx,0		;初始化累加器
+   mov cx,32
+   
+   s:	mov al,ds:[bx]
+   	cmp al,32	
+   	jb  s0		;当小于32,跳到s0,继续循环
+   	cmp al,128
+   	ja  s0		;当大于128,跳到s0,继续循环
+   	inc dx
+   s0: inc bx
+   	loop s
+   	
+   	mov ax,4c00h
+   	int 21h
+   		
+   code ends
+   end start
+   
+   ;统计F000:0处32个字节中,大小在(32,128)的数据的个数
+   assume cs:code
+   code segment
+   start:
+   mov	ax,0f000h
+   mov ds,ax
+   
+   mov bx,0
+   mov dx,0		;初始化累加器
+   mov cx,32
+   
+   s:	mov al,ds:[bx]
+   	cmp al,32	
+   	jna  s0		;当不大于32,跳到s0,继续循环
+   	cmp al,128
+   	jnb  s0		;当不小于128,跳到s0,继续循环
+   	inc dx
+   s0: inc bx
+   	loop s
+   	
+   	mov ax,4c00h
+   	int 21h
+   		
+   code ends
+   end start
+   ```
+
+4. test 11.4
+
+   ```assembly
+   mov ax,0				;ax=0
+   push ax					;
+   popf					;
+   mov ax,0fff0h			;ax=fff0h 
+   add ax,0010h			;
+   pushf					;
+   pop ax					;ax=0047h   因为flag寄存器中的次低位(第1bit)为1
+   and al,11000101B		;ax=0045h	与SF ZF PF CF 相与
+   and ah,00001000B		;ax=0045h
+   ```
+
+### lab 11
+
+1. 
+
+   ```assembly
+   assume cs:code
+   
+   data segment
+   	db "Beginner's All-purpose Symbolic Instruction Code.",0
+   data ends
+   
+   code segment
+   	begin:
+   			mov ax,data
+   			mov ds,ax
+   			mov si,0	;ds:si同时指向源以及目的地址
+   			call letterc
+   			
+   			mov ax,4c00h
+   			int 21h
+   	
+   	;名称;letterc
+   	;功能:将以0结尾的字符串中的小写字母转变为大写字母
+   	;参数:ds:si指向字符串的首地址
+   
+   	letterc:
+   			push si
+   			push cx
+   			
+   		s1: push cx
+   			mov cx,ds:[si]
+   			jcxz ok		;当为0时,则结束循环
+   			and byte ptr ds:[si],11011111B;否则,转换为大写
+   			inc si
+   			pop cx
+   			loop s1
+   		ok:
+   			pop cx
+   			pop si
+   			ret
+   		
+   code ends
+   end begin
+   ```
+
+   ![1538300660264](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538300660264.png)
+
+# Chapter 12
+
+-  我们如何让一个内存单元成为栈顶?将它的地址放入SS:SP中
+- 我们如何让一个内存单元中的信息被CPU当做指令来执行?将它的地址放入CS:IP中
+- 我们如何让一段程序成为N号中断的中断处理程序?将它的入口地址放入中断向量表的N号表项中偏移地址放入0:4N字单元中,段地址放入0:4N+2字单元中
+
+1. test 12.1
+
+   > <img src=http://thyrsi.com/t6/378/1538301220x-1566688526.png />
+   >
+   > (1)0070:018b
+   >
+   > (2)<u>4N</u>    <u>0000</u>
+
+2. 
+
+   > 中断过程(中断向量:中断处理程序的入口地址)
+   >
+   > 1. 取得中断类型码N
+   > 2. pushf
+   > 3. TF=0,IF=0
+   > 4. push CS
+   > 5. push IP
+   > 6. (IP)=(N * 4)   (CS)=(N * 4+2)
+   >
+   > 中断处理程序
+   >
+   > 1. 保存用到的寄存器
+   > 2. 处理中断
+   > 3. 恢复用到的寄存器
+   > 4. 用iret指令返回   pop IP  pop CS   popf
+   >
+   > 编写0号中断向量中断处理程序
+   >
+   > 1. 编写可以显示"overflow!"的中断处理程序:do0:
+   > 2. 将do0送入内存0000:0200处
+   > 3. 将do0的入口地址0000:0200存储在中断向量表0号表项中
+   >
+   >
+
+3. 
+
+   ```assembly
+   assume cs:code
+   
+   code segment
+   start: do0安装程序
+   		设置中断向量表
+   		mov ax,4c00h
+   		int 21h
+   
+   do0:    显示字符串"overflow!"
+   		mov ax,4c00h
+   		int 21h
+   		
+   code ends
+   
+   end start
+   ```
+
+## lab 12
+
+1. example
+
+   ```assembly
+   assume cs:code
+   
+   code segment
+   
+   start: 
+   		mov ax,cs
+   		mov ds,ax
+   		mov si,offset do0	;设置ds:si指向源地址
+   		
+   		mov ax,0			
+   		mov es,ax
+   		mov di,200h			;设置es:di指向目的地址
+   		
+   		mov cx,offset do0end-offset do0			;设置cx为传输长度,利用编译器来计算do0长度;
+   		;因为汇编编译器可以处理表达式
+   		
+   		cld					;设置传输方向为正
+   
+   		rep movsb
+   		
+   		
+   		mov ax,0
+   		mov es,ax
+   		mov word ptr es:[0*4],200h
+   		mov word ptr es:[0*4+2],0   ;设置中断向量表
+   		
+   		mov ax,4c00h
+   		int 21h
+   		
+   	do0:jmp short do0start	;指令占2B
+   		db "overflow!"
+   		
+   do0start:
+   		mov ax,cs
+   		mov ds,ax
+   		mov si,202h		;设置ds:si指向字符串(字符串存放在代码段中,偏移地址,0:200处的指令为jmp short do0start,这条指令占两个字节,所以"overflow!"的偏移地址为202h
+   		
+   		mov ax,0b800h
+   		mov es,ax
+   		mov di,12*160+36*2 ;设置es:di指向显存空间的中间位置
+   		
+   		mov cx,9		;设置显示字符串长度
+   	 s: mov al,ds:[si]
+   		mov es:[di],al
+   		inc si
+   		add di,2
+   		loop s
+   		
+   		mov ax,4c00h
+   		int 21h		;用来返回DOS的
+   	
+   do0end:nop
+   		
+   code ends
+   end start
+   ```
+
+2. 实验源码
+
+   ```assembly
+   assume cs:code
+   
+   code segment
+   
+   start:
+   		;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中.
+   		mov ax,cs
+   		mov ds,ax
+   		mov si,offset do0		;ds:si指向源地址
+   		
+   		mov ax,0
+   		mov es,ax
+   		mov di,200h				;es:di指向目的地址(即中断处理程序的起始地址)
+   		
+   		mov cx,offset do0end - offset do0	;设置程序所占的字节数大小
+   		
+   		cld						;设置df=0,正向传送
+   		
+   		rep movsb				;循环传送
+   		
+   		mov ax,0
+   		mov es,ax
+   		mov word ptr es:[0*4],200h
+   		mov word ptr es:[0*4+2],0	;设置中断向量
+   		
+   		
+   		
+   		mov ax,4c00h
+   		int 21h					;返回DOS
+   		
+   		;do0即为中断处理程序,负责显示.
+   	
+   		
+   		do0:jmp short do0start	;指令占2B
+   		db "divide error!"		;字符共13个
+   		
+   do0start:
+   							;flag,cs,ip已经由中断过程保存了
+   		push ds
+   		push es
+   		push si
+   		push di					;保存现场
+   		push ax
+   		push cx
+   
+   		mov ax,cs
+   		mov ds,ax
+   		mov si,202h				;ds:si指向字符地址,此处可以使用绝对地址,因为这是固定在底部
+   		
+   		mov ax,0b800h			
+   		mov es,ax
+   		mov di,12*160+34*2		;es:di指向显存地址
+   		
+   		mov cx,13				;设置循环次数
+   		mov ah,2				;设置为绿色
+   	s:  mov al,ds:[si]
+   		mov es:[di],ax
+   		inc si
+   		add di,2
+   		loop s
+   		
+   		pop cx
+   		pop ax
+   		pop di					;恢复现场
+   		pop si
+   		pop es
+   		pop ds
+   		
+   		
+   		mov ax,4c00h
+   		int 21h				;默认情况下是返回到导致中断的程序处(iret),这里执行中断处理程序后返回DOS系统
+   		;iret:pop IP;pop CS;popf
+   		;int :push popf;push CS;push IP
+   		
+   		
+   do0end:nop
+   		
+   		
+   code ends
+   end start
+   ```
+
+   <img src=http://thyrsi.com/t6/378/1538314045x1822611431.png />
+
+## Chapter 13
+
+1. 问题一:编写,安装中断7ch的中断例程
+
+   ```assembly
+   ;功能:求一word型数据的平方
+   ;参数:(ax)=要计算的数据
+   ;返回值:dx,ax中存放结果的高16位和低16位
+   assume cs:code
+   
+   code segment
+   
+   start:
+   		mov ax,cs		;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中
+   		mov ds,ax
+   		mov si,offset sqr
+   		
+   		mov ax,0
+   		mov es,ax
+   		mov di,200h
+   		
+   		mov cx,offset sqrend-offset sqr
+   		
+   		cld
+   		
+   		rep movsb
+   		
+   		
+   		mov ax,0
+   		mov es,ax
+   		mov word ptr es:[7ch*4],200h
+   		mov word ptr es:[7ch*4+2],0		;设置中断向量
+   		
+   		mov ax,4c00h
+   		int 21h
+   		
+   	sqr:mul ax
+   		iret
+   sqrend: nop
+   
+   code ends
+   end start
+   ```
+
+2. 问题一:编写,安装中断7ch的中断例程
+
+   ```assembly
+   ;功能:将一个全是字母,以0结尾的字符串,转化为大写
+   ;参数:ds:si指向字符串的首地址
+   ;返回值:无
+   assume cs:code
+   
+   code segment
+   
+   start:
+   		;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中
+   		mov ax,cs
+   		mov ds,ax
+   		mov si,offset capital	
+   		
+   		mov ax,0			
+   		mov es,ax		
+   		mov di,200h			;目的地址
+   		
+   		mov cx,offset capitalend-offset capital
+   		
+   		cld
+   		
+   		rep movsb
+   		
+   		mov ax,0
+   		mov es,ax
+   		mov word ptr es:[7ch*4],200h
+   		mov word ptr es:[7ch*4+2],0	;设置中断向量
+   		
+   		mov ax,4c00h
+   		int 21h
+   		
+   capital:push cx
+   		push si
+   		
+   change: mov cl,[si]
+   		mov ch,0
+   		jcxz ok
+   		and byte ptr ds:[si],11011111b
+   		inc si
+   		jmp short change
+   		
+   	ok: pop si
+   		pop cx
+   		iret
+   		
+   capitalend: 	
+   		nop
+   
+   code ends
+   end start
+   ```
