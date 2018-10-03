@@ -739,6 +739,267 @@
 
 1. 编写并安装int 7ch中断例程,功能为显示一个用0结束的字符串,中断例程安装在0:200处
 
-   ```assembly
-   
-   ```
+   > 1.调用程序
+   >
+   > ```assembly
+   > ;功能:显示一个用0结束的字符串
+   > ;参数:(dh)=行号,(dl)=列号,(cl)=颜色,ds:si指向字符串首地址
+   > ;返回:无
+   > 
+   > assume cs:code
+   > data segment
+   > 	db "welcome to hujie!",0
+   > data ends
+   > 
+   > code segment
+   > start:
+   > 		mov dh,10
+   > 		mov dl,10
+   > 		mov cl,2
+   > 		mov ax,data
+   > 		mov ds,ax
+   > 		mov si,0
+   > 		int 7ch
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 		
+   > 		
+   > 
+   > code ends
+   > end start
+   > 		
+   > ```
+   >
+   > 2.安装程序
+   >
+   > ```assembly
+   > ;安装程序:中断向量号:7ch,中断向量: 0:200处
+   > assume cs:code
+   > 
+   > code segment
+   > start:
+   > 		mov ax,cs
+   > 		mov ds,ax
+   > 		mov si,offset lp	
+   > 		
+   > 		mov ax,0			
+   > 		mov es,ax		
+   > 		mov di,200h			;目的地址
+   > 		
+   > 		mov cx,offset lpend-offset lp
+   > 		
+   > 		cld
+   > 		
+   > 		rep movsb
+   > 		
+   > 		mov ax,0
+   > 		mov es,ax
+   > 		mov word ptr es:[7ch*4],200h
+   > 		mov word ptr es:[7ch*4+2],0	;设置中断向量
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 		
+   > lp:     push es
+   > 		push ax	
+   > 		push cx
+   > 		push bx	
+   > 		push di			;保存现场
+   > 		
+   > 		mov ax,0b800h
+   > 		mov es,ax
+   > 		dec dh			;行
+   > 		mov al,dh
+   > 		mov bl,160
+   > 		mul bl
+   > 		mov di,ax
+   > 		
+   > 		dec dl			;列
+   > 		mov al,dl
+   > 		mov bl,2
+   > 		mul bl
+   > 		add di,ax		;es:bx指向显存地址
+   > 		
+   > change:	push cx
+   > 		mov ah,cl		;保存颜色
+   > 		mov al,ds:[si]
+   > 		mov es:[di],ax	;字符显示
+   > 	
+   > 		mov cl,al
+   > 		sub ch,ch		;cx中存放的是对应的ASCII码
+   > 			
+   > 		jcxz ok			;判断其字符码是否为0
+   > 		inc si			;指向下一个字符
+   > 		add di,2		;指向下一个显存地址
+   > 		pop cx			;恢复颜色
+   > 		jmp short change
+   > 				
+   > ok:		pop di
+   > 		pop bx
+   > 		pop cx
+   > 		pop ax
+   > 		pop es
+   > 		iret
+   > 
+   > lpend:  nop
+   > 
+   > code ends
+   > end start
+   > ```
+   >
+   > 3.程序结果
+   >
+   > <img src=http://thyrsi.com/t6/380/1538532113x-1376440138.png />
+
+2. 编写并安装int 7ch中断例程,功能为完成loop指令的功能
+
+   > 1.调用程序
+   >
+   > ```assembly
+   > ;功能:在屏幕中间显示80个"❤"黑底红色030ch
+   > ;参数:(cx)=循环次数,(bx)=位移
+   > ;返回:无
+   > 
+   > assume cs:code
+   > 
+   > code segment
+   > start:
+   > 		mov ax,0b800h
+   > 		mov es,ax
+   > 		mov di,160*12
+   > 		mov bx,offset s-offset se		;设置se到s的转移位移
+   > 		mov cx,80
+   > 	s:	mov word ptr es:[di],403h
+   > 		add di,2
+   > 		int 7ch					;如果(cx)不等于0,转移到标号s处
+   > 	se:	nop
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 
+   > code ends
+   > end start
+   > 		
+   > ```
+   >
+   > 2.安装程序
+   >
+   > ```assembly
+   > ;安装程序:中断向量号:7ch,中断向量: 0:200处
+   > assume cs:code
+   > 
+   > code segment
+   > start:
+   > 		mov ax,cs
+   > 		mov ds,ax
+   > 		mov si,offset lp	
+   > 		
+   > 		mov ax,0			
+   > 		mov es,ax		
+   > 		mov di,200h			;目的地址
+   > 		
+   > 		mov cx,offset lpend-offset lp
+   > 		
+   > 		cld
+   > 		
+   > 		rep movsb
+   > 		
+   > 		mov ax,0
+   > 		mov es,ax
+   > 		mov word ptr es:[7ch*4],200h
+   > 		mov word ptr es:[7ch*4+2],0	;设置中断向量
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 		
+   > lp:    	push bp
+   > 		mov bp,sp
+   > 		dec cx
+   > 		jcxz	lpret
+   > 		add [bp+2],bx				;完成IP+base从而转到标号s处
+   > 
+   > lpret:	pop bp
+   > 		iret
+   > 
+   > lpend:  nop
+   > 
+   > code ends
+   > end start
+   > ```
+   >
+   > 3.程序结果
+   >
+   > <img src=http://thyrsi.com/t6/380/1538552467x1822611263.png />
+
+3. 分别在屏幕的第2,4,6,8行显示4句英文诗,补全程序
+
+   > 1.程序
+   >
+   > ```assembly
+   > assume cs:code
+   > code segment
+   > 	s1:	db 'Good,better,best,','$'
+   > 	s2:	db 'Never let it rest,','$'
+   > 	s3: db 'Till good is better,','$'
+   > 	s4:	db 'And better,best.','$'
+   > 	s : dw offset s1,offset s2,offset s3,offset s4
+   > 	row:db	2,4,6,8
+   > 	
+   > 	start:  mov ax,cs
+   > 			mov ds,ax
+   > 			mov bx,offset s
+   > 			mov si,offset row
+   > 			mov cx,4
+   > 		ok: mov bh,0			;第0页
+   > 			mov dh,ds:[si]		;行
+   > 			mov dl,0			;列
+   > 			mov ah,2			;置光标
+   > 			int 10h
+   > 			
+   > 			mov dx,ds:[bx]			;ds:dx指向字符串的首地址
+   > 			mov ah,9			;在光标位置处显示字符
+   > 			int 21h
+   > 			inc si					;指向需要显示的下一行的行数的偏移地址
+   > 			add bx,2			;指向下下一行字符串的首地址
+   > 			loop ok
+   > 			
+   > 			mov ax,4c00h
+   > 			int 21h
+   > code ends
+   > end start
+   > ```
+   >
+   > 2.运行结果
+   >
+   > <img src=http://thyrsi.com/t6/380/1538554412x-1376440138.png />
+   >
+   > 3.分析
+   >
+   > 由于是不同的行显示不同内容,故最好的策略是将行号与要内容分开,具体实现是
+   >
+   > 1. 将每行的内容分别放在标号也即该行的首地址中
+   > 2. 采用字大小,用标号记录其各行的标号
+   > 3. 采用字节大小(屏幕总共25行),用标号记录相应的行号
+   > 4. 将以上内容放入cs段的起始位置
+
+## Chapter 14
+
+1. test 14.1
+
+   > 1.编程,读取CMOS RAM的2号单元的内容
+   >
+   > ```assembly
+   > mov al,2
+   > out 70h,al	;往70h端口写入2
+   > in al,71h	;从71h端口读入2号单元的一个字节(mov)
+   > ```
+   >
+   > 2.编程,向CMOS RAM的2号单元写入0
+   >
+   > ```assembly
+   > mov al,2
+   > out 70h,al	;往70h端口写入2
+   > mov al,0
+   > out 71h,al	;往71h端口写入0字节
+   > ```
+
+2. 
