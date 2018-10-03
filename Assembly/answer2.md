@@ -195,7 +195,7 @@
 
    ![1538300660264](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538300660264.png)
 
-# Chapter 12
+## Chapter 12
 
 -  我们如何让一个内存单元成为栈顶?将它的地址放入SS:SP中
 - 我们如何让一个内存单元中的信息被CPU当做指令来执行?将它的地址放入CS:IP中
@@ -257,7 +257,7 @@
    end start
    ```
 
-## lab 12
+### lab 12
 
 1. example
 
@@ -503,7 +503,242 @@
    
    code ends
    end start
+   
+   ;use
+   assume cs:code
+   
+   data segment
+   	db 'conversation',0
+   data ends
+   
+   code segment
+   start:	
+   		mov ax,data
+   		mov ds,ax
+   		mov si,0
+   		int 7ch
+   		
+   		mov ax,4c00h
+   		int 21h
+   code ends
+   end start
    ```
 
    <img src=http://thyrsi.com/t6/379/1538399316x1822611359.png />
 
+3. 对int,iret和栈的深入理解
+
+   ```assembly
+   assume cs:code 
+   
+   code segment
+   
+   	start:
+   			mov ax,0b800h
+   			mov es,ax
+   			mov di,160*12
+   			
+   			mov bx,offset s-offset se	;设置从标号se到标号s的转移位移
+   			mov cx,80
+   			
+   		s:	mov byte ptr es:[di],'!'
+   			add di,2
+   			int 7ch			;如果(cx)不等于0,转移到标号s处
+   		se: nop
+   		
+   			mov ax,4c00h
+   			int 21h
+   			
+   			
+   		lp: push bp
+   			mov bp,sp
+   			dec cx
+   			jcxz lpret
+   			add [bp+2],bx
+   	 lpret: pop bp
+   			iret
+   			
+   code ends
+   
+   end start
+   			
+   ```
+
+4. test 13.1
+
+   > <img src=http://thyrsi.com/t6/379/1538466579x1822611383.png />
+   >
+   > (1)ffffh
+   >
+   > (2)源代码
+   >
+   > ```assembly
+   > ;安装程序
+   > ;功能:使用7ch中断例程完成jmp near ptr s指令的功能
+   > ;参数:cx:循环次数		bx:传送转移位移
+   > ;返回值:无
+   > assume cs:code
+   > 
+   > code segment
+   > 
+   > start:
+   > 		;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中
+   > 		mov ax,cs
+   > 		mov ds,ax
+   > 		mov si,offset lp	
+   > 		
+   > 		mov ax,0			
+   > 		mov es,ax		
+   > 		mov di,200h			;目的地址
+   > 		
+   > 		mov cx,offset lpend-offset lp
+   > 		
+   > 		cld
+   > 		
+   > 		rep movsb
+   > 		
+   > 		mov ax,0
+   > 		mov es,ax
+   > 		mov word ptr es:[7ch*4],200h
+   > 		mov word ptr es:[7ch*4+2],0	;设置中断向量
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 		
+   > lp:     push bp
+   > 
+   > 		mov bp,sp		;保存bp
+   > 		dec cx
+   > 		jcxz lpret
+   > 		add [bp+2],bx	;调用指令的下一条指令的IP+跳转的偏移量
+   > 		
+   > lpret:  pop bp			;恢复bp
+   > 		iret
+   > 
+   > 		
+   > lpend:  nop
+   > 
+   > code ends
+   > end start
+   > 
+   > ;调用程序
+   > ;在屏幕的第12行,显示data段中以0结尾的字符串
+   > assume cs:code
+   > 
+   > data segment
+   > 	db 'conversation',0
+   > data ends
+   > 
+   > code segment
+   > start:	
+   > 		mov ax,data
+   > 		mov ds,ax
+   > 		mov si,0
+   > 		
+   > 		mov ax,0b800h
+   > 		mov es,ax
+   > 		mov di,12*160
+   > 		
+   > 	s:	cmp byte ptr ds:[si],0
+   > 		je	ok	;如果是0跳出循环
+   > 		mov ah,2		;设置绿色
+   > 		mov al,ds:[si]
+   > 		mov es:[di],ax
+   > 		inc si
+   > 		add di,2
+   > 		mov bx,offset s- offset ok	;跳转的偏移量
+   > 		int 7ch
+   > 		
+   > 	ok:	mov ax,4c00h
+   > 		int 21h
+   > code ends
+   > end start
+   > ```
+   >
+   > 运行结果:
+   >
+   > <img src=http://thyrsi.com/t6/379/1538470663x-1376440090.png />
+
+5. test 13.2
+
+   > (1)我们可以编程改变ffff:0处的指令,使得CPU不去执行BIOS中的硬件系统检测和初始化程序. ×
+   >
+   > (2)int 19h中断例程,可以由DOS提供	×
+   >
+   > <img src=http://thyrsi.com/t6/379/1538472352x-1376440090.png />
+
+6. BIOS和DOS提供的中断例程,都用ah来传递内部子程序的编号
+
+   1. BIOS:int 10h
+
+      ```assembly
+      mov ah,2	;置光标 表示调用第10h号中断例程的2号子程序
+      mov bh,2	;第0页
+      mov dh,5	;行号
+      mov dl,12	;列号
+      int 10h
+      
+      ;在屏幕的5行12列显示3个红底高亮闪烁绿色的'a' (bl=0cah)
+      assume cs:code
+      code segment
+      start:
+      		mov ah,2	;置光标 表示调用第10h号中断例程的2号子程序
+      		mov bh,2	;第0页
+              mov dh,5	;行号
+              mov dl,12	;列号
+              int 10h
+              
+              mov ah,9	;在光标位置显示字符
+              mov al,'a'	;字符
+              mov bl,0cah	;红底高亮闪烁绿色
+              mov bh,0	;第0页
+              mov cx,3	;字符重复个数
+              int 10h
+              
+              mov ax,4c00h	;mov al,4ch	;程序返回
+              				;mov al,0	;返回值
+              int 21h			
+              
+      code ends
+      end start
+      ```
+
+   2. DOS:int 21h
+
+      ```assembly
+      ;在屏幕的5行12列显示字符串"Welcome to masm!"
+      assume cs:code
+      
+      data segment
+      	db 'Welcome to masm','$'
+      data ends
+      
+      code segment
+      start:
+      		mov ah,2	;置光标 表示调用第10h号中断例程的2号子程序
+      		mov bh,2	;第0页
+              mov dh,5	;行号
+              mov dl,12	;列号
+              int 10h
+              
+      		mov ax,data	
+      		mov ds,ax
+      		mov dx,0	;ds:dx指向字符串的首地址data:0
+      		mov ah,9
+      		int 21h
+              
+              mov ax,4c00h	;mov al,4ch	;程序返回
+              				;mov al,0	;返回值
+              int 21h			
+              
+      code ends
+      end start
+      ```
+
+### lab 13
+
+1. 编写并安装int 7ch中断例程,功能为显示一个用0结束的字符串,中断例程安装在0:200处
+
+   ```assembly
+   
+   ```
