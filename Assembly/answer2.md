@@ -30,7 +30,7 @@
    >
    >  mov、push、pop等传送指令对标志寄存器没影响。
 
-   ![1538225007332](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538225007332.png)
+   <img src=http://thyrsi.com/t6/380/1538619636x1822611383.png />
 
 2. test 11.2
 
@@ -72,11 +72,13 @@
    >
    >  mov、push、pop等传送指令对flag没影响
 
-   ![1538291451642](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538291451642.png)
+   <img src=http://thyrsi.com/t6/380/1538619695x-1404755462.png />
 
-   ![1538295448326](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538295448326.png)
+   <img src=http://thyrsi.com/t6/380/1538619811x-1376440090.png />
 
-   ![1538295469723](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538295469723.png)
+
+
+   <img src=http://thyrsi.com/t6/380/1538619724x-1404755462.png />
 
 3. test 11.3
 
@@ -193,7 +195,7 @@
    end begin
    ```
 
-   ![1538300660264](C:\Users\HuJie-pc\AppData\Roaming\Typora\typora-user-images\1538300660264.png)
+   <img src=http://thyrsi.com/t6/380/1538619842x-1376440090.png />
 
 ## Chapter 12
 
@@ -1002,4 +1004,16 @@
    > out 71h,al	;往71h端口写入0字节
    > ```
 
-2. 
+2. test 14.2
+
+   > 编程,用加法和移位指令计算(ax)=(ax)*10
+   >
+   > ```assembly
+   > shl ax,1
+   > mov bx,ax
+   > mov cl,2
+   > shl ax,cl
+   > add bx,ax
+   > ```
+   >
+   >
