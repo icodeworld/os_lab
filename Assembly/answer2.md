@@ -4,19 +4,21 @@
 
    > 写出下面每条指令执行后,ZF.PF.SF等标志位的值
    >
-   > sub al,al		;ZF=1	PF=1	SF=0
-   >
-   > mov al,1          ;1		1		0(有问题)
-   >
-   > push ax 		;1		1		0
-   >
+   > ```assembly
+   > sub al,al	;ZF=1	PF=1	SF=0
+   > 
+   > mov al,1    ;1		1		0(有问题)
+   > 
+   > push ax 	;1		1		0
+   > 
    > pop	bx		;1		1		0
-   >
-   > add al,bl		;0		0              0
-   >
-   > add al,10		;0            1	        0
-   >
+   > 
+   > add al,bl	;0		0       0
+   > 
+   > add al,10	;0      1	    0
+   > 
    > mul al		;0		1		0
+   > ```
    >
    >
    >
@@ -34,25 +36,27 @@
 
 2. test 11.2
 
-   > ​                               ;CF			OF			SF			ZF			PF
-   >
-   > sub al,al			;0			0			0			1			1
-   >
+   > ```assembly
+   > ​               ;CF			OF			SF			ZF			PF
+   > 
+   > sub al,al		;0			0			0			1			1
+   > 
    > mov al,10h		;0			0			0			1			1	
-   >
+   > 
    > add al,90h		;0			0			1			0			1
-   >
+   > 
    > mov al,80h		;0			0			1			0			1
-   >
+   > 
    > add al,80h		;1			1			0			1			1
-   >
+   > 
    > mov al,0fch		;1			1			0			1			1
-   >
+   > 
    > add al,05h		;1			0			0			0			0
-   >
+   > 
    > mov al,7dh		;1			0			0			0			0
-   >
+   > 
    > add al,0bh 		;0			1			1			0			1
+   > ```
    >
    > 检测点涉及的相关内容：
    >
