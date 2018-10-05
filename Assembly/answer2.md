@@ -4,21 +4,19 @@
 
    > 写出下面每条指令执行后,ZF.PF.SF等标志位的值
    >
-   > ```assembly
    > sub al,al		;ZF=1	PF=1	SF=0
-   > 
-   > mov al,1        ;1		1		0(有问题)
-   > 
+   >
+   > mov al,1          ;1		1		0(有问题)
+   >
    > push ax 		;1		1		0
-   > 
-   > pop	bx			;1		1		0
-   > 
-   > add al,bl		;0		0       0
-   > 
-   > add al,10		;0      1		0
-   > 
-   > mul al			;0		1		0
-   > ```
+   >
+   > pop	bx		;1		1		0
+   >
+   > add al,bl		;0		0              0
+   >
+   > add al,10		;0            1	        0
+   >
+   > mul al		;0		1		0
    >
    >
    >
@@ -36,27 +34,25 @@
 
 2. test 11.2
 
-   > ```assembly
-   > 				;CF			OF			SF			ZF			PF
-   > 
-   > sub al,al		;0			0			0			1			1
-   > 
+   > ​                               ;CF			OF			SF			ZF			PF
+   >
+   > sub al,al			;0			0			0			1			1
+   >
    > mov al,10h		;0			0			0			1			1	
-   > 
+   >
    > add al,90h		;0			0			1			0			1
-   > 
+   >
    > mov al,80h		;0			0			1			0			1
-   > 
+   >
    > add al,80h		;1			1			0			1			1
-   > 
+   >
    > mov al,0fch		;1			1			0			1			1
-   > 
+   >
    > add al,05h		;1			0			0			0			0
-   > 
+   >
    > mov al,7dh		;1			0			0			0			0
-   > 
+   >
    > add al,0bh 		;0			1			1			0			1
-   > ```
    >
    > 检测点涉及的相关内容：
    >
@@ -1017,5 +1013,115 @@
    > shl ax,cl
    > add bx,ax
    > ```
+
+### lab 14
+
+1. 编程,以"年/月/日 时:分:秒"的格式,显示当前的日期,时间.
+
+   > 1.编程思路
    >
+   > 若单独显示不同的年 月 日 时 分 秒,则代码变得过于冗长和重复,考虑到代码的精简性,于是将将其单元号都放入一个标号单元中,同理单独显示的字符也都放入一个标号中.考虑到程序的移植性,将其放入CS段中.
    >
+   > 2.程序
+   >
+   > ```assembly
+   > assume cs:code
+   > 
+   > stack segment 
+   > 	db 16 dup (0)
+   > stack ends
+   > 
+   > code segment
+   > 		s: db	9,8,7,4,2,0			;年 月 日 时 分 秒
+   > 		s1:db	47,47,32,58,58,0	;单独显示符号的ASCII码
+   > start:	
+   > 		mov cx,6
+   > 		mov ax,stack
+   > 		mov ss,ax
+   > 		mov sp,16
+   > 		
+   > 		mov ax,cs
+   > 		mov ds,ax
+   > 		mov bp,offset s
+   > 		mov di,offset s1
+   > 		mov si,64
+   > 		
+   > change:	push cx
+   > 		mov al,ds:[bp]
+   > 		out 70h,al
+   > 		in al,71h
+   > 		mov ah,al
+   > 		mov cl,4
+   > 		shr ah,cl
+   > 		and al,00001111b		;转成两位十进制数
+   > 		
+   > 		add ah,30h
+   > 		add al,30h
+   > 		
+   > 		mov bx,0b800h
+   > 		mov es,bx
+   > 		mov byte ptr es:[160*12+si],ah	;显示年 月 日 时 分 秒的十位数码
+   > 		mov byte ptr es:[160*12+si+2],al;显示年 月 日 时 分 秒的个位数码
+   > 		mov al,ds:[di]					
+   > 		mov byte ptr es:[160*12+si+4],al;显示单独字符
+   > 		
+   > 		pop cx
+   > 		inc bp
+   > 		inc di
+   > 		add si,6
+   > 		loop change
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 		
+   > code ends
+   > end start
+   > ```
+   >
+   > 3.运行结果
+   >
+   > <img src=http://thyrsi.com/t6/380/1538636170x-1566688371.png />
+
+
+
+## Chapter 15
+
+1. 可屏蔽中断(外中断)
+
+   > 1. 取中断类型码n;(从数据总线送入CPU)
+   > 2. 标志寄存器入栈,IF=0,TF=0;
+   > 3. CS,IP入栈;
+   > 4. (IP)=(n * 4),(CS)=(n * 4+2)
+
+2. 不可屏蔽中断(外中断)
+
+   > 1. 标志寄存器入栈,IF=0,TF=0;
+   > 2. CS,IP入栈
+   > 3. (IP)=(8),(CS)=(0AH)
+
+3. 在BIOS键盘缓冲区中,一个键盘输入用一个字单元存放,高位字节存放扫描码,低位字节存放字符码
+
+   1. 键盘产生扫描码
+   2. 扫描码送入60h端口
+   3. 引发9号中断
+   4. CPU执行int 9中断例程处理键盘输入(这步能改变)
+
+4. int过程的模拟过程变为
+
+   1. 标志寄存器入栈
+
+   2. IF=0,TF=0
+
+   3. call dword ptr ds:[0]
+
+      ```
+      pushf				;标志寄存器入栈
+      
+      pushf
+      pop ax
+      and ah,11111100h
+      push ax
+      popf				;IF=0,TF=0
+      
+      call dword ptrds:[0];CS,IP入栈	
+      ```
