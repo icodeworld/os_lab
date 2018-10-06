@@ -1396,7 +1396,6 @@
    > 		cmp ah,0
    > 		je	showret		
    > 		mov es:[si],ah
-   > 		inc bx
    > 		add si,2
    > 		jmp short shows
    > 		
@@ -1412,4 +1411,6 @@
    >
    > <img src=http://thyrsi.com/t6/382/1538816613x-1376440090.png />
    >
-   > 3.本例侧重展示其区别,未做错误显示处理
+   > 3.本例侧重展示其用法及区别,未做错误显示处理,标号仅仅是一个标记,并不占用实际的空间
+   >
+   > <img src=http://thyrsi.com/t6/382/1538827536x-1566688347.png />
