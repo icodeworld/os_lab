@@ -35,7 +35,7 @@
 2. test 11.2
 
    > ```assembly
-   >                ;CF			OF			SF			ZF			PF
+   >       		    ;CF			;OF			;SF			;ZF			;PF
    > 
    > sub al,al		;0			0			0			1			1
    > 
