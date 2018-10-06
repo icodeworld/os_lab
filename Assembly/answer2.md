@@ -7,15 +7,15 @@
    > ```assembly
    > sub al,al	;ZF=1	PF=1	SF=0
    > 
-   > mov al,1   ;1		1		0(有问题)
+   > mov al,1	;1		1		0
    > 
-   > push ax 	;1		1		0
+   > push ax		;1		1		0
    > 
    > pop bx		;1		1		0
    > 
-   > add al,bl	;0		0       0
+   > add al,bl	;0		0		0
    > 
-   > add al,10	;0      1	    0
+   > add al,10	;0		1		0
    > 
    > mul al		;0		1		0
    > ```
@@ -47,13 +47,13 @@
    > 
    > add al,80h		;1			1			0			1			1
    > 
-   > mov al,0fch	;1			1			0			1			1
+   > mov al,0fch		;1			1			0			1			1
    > 
    > add al,05h		;1			0			0			0			0
    > 
    > mov al,7dh		;1			0			0			0			0
    > 
-   > add al,0bh 	;0			1			1			0			1
+   > add al,0bh 		;0			1			1			0			1
    > ```
    >
    > 检测点涉及的相关内容：
@@ -1116,7 +1116,7 @@
 
    3. call dword ptr ds:[0]
 
-      ```
+      ```assembly
       pushf				;标志寄存器入栈
       
       pushf
@@ -1127,3 +1127,289 @@
       
       call dword ptrds:[0];CS,IP入栈	
       ```
+
+### lab 15
+
+1. 编程,安装一个新的int9中断例程,功能:在DOS下,按下"A"键后,除非不再松开,如果松开,就显示满屏幕的"A",其他的键照常处理
+
+   > 1.程序
+   >
+   > ```assembly
+   > ;t152
+   > assume cs:code
+   > 
+   > stack segment
+   > 	db 128	dup (0)
+   > stack ends
+   > 
+   > code  segment
+   > start:	mov ax,stack
+   > 		mov ss,ax
+   > 		mov sp,128
+   > 		
+   > 		push cs
+   > 		pop ds								;用栈传值
+   > 		
+   > 		mov ax,0
+   > 		mov es,ax
+   > 		
+   > 		mov si,offset int9					;设置ds:si指向源地址
+   > 		mov di,204h							;设置es:di指向目的地址
+   > 		mov cx,offset int9end-offset int9	;设置cx为传输长度
+   > 		cld									;设置传输方向为正
+   > 		
+   > 		rep movsb
+   > 		
+   > 		push es:[9*4]						;保存原先int9中断地址到0:200
+   > 		pop  es:[200h]
+   > 		push es:[9*4+2]
+   > 		pop  es:[202h]
+   > 		
+   > 		cli									;屏蔽中断
+   > 		mov  word ptr es:[9*4],204h
+   > 		mov  word ptr es:[9*4+2],0
+   > 		sti									;开启中断
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h
+   > 		
+   > int9:	push ax
+   > 		push bx
+   > 		push cx
+   > 		push es
+   > 		
+   > 		mov ax,0b800h
+   > 		mov es,ax
+   > 		mov bx,0
+   > 		mov cx,2000
+   > 		
+   > 	s1: in al,60h							;从60h端口读取数据
+   > 											;送入原来的int9处理得到键值
+   > 		pushf
+   > 		call dword ptr   cs:[200h]			;当此中断例程执行时(CS)=0
+   > 		
+   > 		cmp al,1Eh							;判断是否为"A"
+   > 		je 	s1								;如果是"A"就循环扫描键值
+   > 		
+   > 		cmp al,9eh							;判断是否松开
+   > 		jne	int9ret							;如果松开则显示满屏幕的"A"
+   > 		
+   > 		
+   > 		
+   >     s2:	mov byte ptr es:[bx],65	
+   > 		inc byte ptr es:[bx+1]				;每重复一次改变颜色				
+   > 		add bx,2
+   > 		loop s2
+   > 											;显示满屏幕的"A",颜色改变
+   > int9ret:pop es
+   > 		pop cx
+   > 		pop bx
+   > 		pop ax
+   > 		iret
+   > 		
+   > int9end:nop
+   > 		
+   > code ends
+   > end start
+   > ```
+   >
+   > 2.结果
+   >
+   > <img src=http://thyrsi.com/t6/381/1538809122x1822611431.png />
+
+## Chapter 16
+
+1. test 16.1
+
+   > 下面的程序将code段中a处的8个数据累加,结果存储到b处的双字中,补全程序
+   >
+   > ```assembly
+   > assume cs:code
+   > code segment
+   > 	a dw 1,2,3,4,5,6,7,8
+   > 	b dd 0
+   > 	
+   > start:
+   >    	mov si,0
+   >    	mov cx,8
+   >   s:mov ax,a[si]
+   >   	add b[0],ax		;低位相加
+   >   	adc b[2],0		;高位相加
+   >   	add si,2
+   >   	loop s
+   >   	
+   >   	mov ax,4c00h
+   >   	int 21h
+   >   	
+   > code ends
+   > end start
+   > ```
+   >
+   >
+
+2. test 16.2
+
+   下面的程序将data段中a处的8个数据累加,结果存储到b处的字中,补全程序
+
+   ```assembly
+   assume cs:code,es:data
+   
+   data segment
+   	a db 1,2,3,4,5,6,7,8
+   	b dw 0
+   data ends
+   
+   code segment
+   start:
+   	mov ax,data
+   	mov es,ax			
+   	mov si,0
+   	mov cx,8
+   s:	mov al,a[si]
+   	mov ah,0
+   	add b,ax
+   	inc si
+   	loop s
+   	
+   	mov ax,4c00h
+   	int 21h
+   
+   code ends
+   end start
+   ```
+
+   根据debug上的调试,得到如下解释:
+
+   1. 若14行不强加限制段寄存器,则会默认会assume的段寄存器,在本例中为es,若强加限制,如cs,则会编译通过,并使段地址为cs
+   2. 若11行的段寄存器不与约定相同,则默认assume的段寄存器,在本例中若只改成mov ds,ax,则不会起到作用
+   3. 由以上两条可知,必须约定,必须相同
+
+3. 映射
+
+   > 1.子程序
+   >
+   > ```assembly
+   > ;用al传送要显示的数据
+   > 
+   > showbyte:	jmp short show
+   > 			
+   > 			table	db	'0123456789ABCDEF'	;字符表
+   > 			
+   > 	show:	push bx
+   > 			push es
+   > 			
+   > 			mov ah,al
+   > 			shr ah,1
+   > 			shr ah,1
+   > 			shr ah,1
+   > 			shr ah,1			;右移4位,ah中得到高4位的值
+   > 			and al,00001111b	;al中为低4位的值
+   > 			
+   > 			mov bl,ah
+   > 			mov bh,0
+   > 			mov ah,table[bx]	;用高四位的值作为相对于table的偏移,取得对应的字符
+   > 			
+   > 			mov bx,0b800h
+   > 			mov es,bx
+   > 			mov es:[160*12+40*2],ah
+   > 			
+   > 			mov bl,al
+   > 			mov bh,0
+   > 			mov al,talbe[bx]	;用低四位的值作为相对于table的偏移,取得对应的字符
+   > 			
+   > 			mov es:[160*12+40*2+2],al
+   > 			
+   > 			pop es
+   > 			pop bx
+   > 			
+   > 			ret
+   > ```
+   >
+   > 目的:
+   >
+   > 1. 为了算法的清晰和简洁
+   > 2. 为了加快运算速度
+   > 3. 为了使程序易于扩充
+
+4. sin(x)
+
+   > 1.程序
+   >
+   > ```assembly
+   > assume cs:code
+   > 
+   > code segment
+   > start:
+   > 	mov si,160*12+80
+   > 	mov ax,55
+   > 	call showsin
+   > 	
+   > 	mov si,160*13+80
+   > 	mov ax,190
+   > 	call showsin
+   > 	
+   > 	mov si,160*14+80
+   > 	mov ax,-1
+   > 	call showsin
+   > 	
+   > 	mov si,160*15+80
+   > 	mov ax,95
+   > 	call showsin
+   > 	
+   > 	mov ax,4c00h
+   > 	int 21h
+   > 	
+   > ;用ax向子程序传递角度
+   > showsin:	jmp short show
+   > 
+   > 	table	dw	ag0,ag30,ag60,ag90,ag120,ag150,ag180	;字符串偏移地址表
+   > 	ag0			db	'0',0		;sin(0)对应的字符串"0"
+   > 	ag30		db	'0.5',0		;sin(30)对应的字符串"0.5"
+   > 	ag60		db	'0.866',0	;sin(60)对应的字符串"0.866"
+   > 	ag90		db	'1',0		;sin(90)对应的字符串"1"
+   > 	ag120		db	'0.866',0	;sin(120)对应的字符串"0.866"
+   > 	ag150		db	'0.5',0		;sin(150)对应的字符串"0.5"
+   > 	ag180		db	'0',0		;sin(180)对应的字符串"0"
+   > 	
+   > show:	push bx
+   > 		push es
+   > 		
+   > 		cmp al,0
+   > 		jb showret	;如果角度小于0,跳出
+   > 		cmp al,180	
+   > 		ja	showret	;如果角度大于180,跳出
+   > 		
+   > 		mov bx,0b800h
+   > 		mov es,bx
+   > 		
+   > ;以下用角度值/30作为相对于table的偏移,取得对应的字符串的偏移地址,放在bx中
+   > 		mov ah,0
+   > 		mov bl,30
+   > 		div bl		;商在al中
+   > 		mov bl,al
+   > 		mov bh,0
+   > 		add bx,bx	;类型为word
+   > 		mov bx,table[bx]
+   > 		
+   > ;以下显示sin(x)对应的字符串
+   > shows:	mov ah,cs:[bx]
+   > 		cmp ah,0
+   > 		je	showret		
+   > 		mov es:[si],ah
+   > 		inc bx
+   > 		add si,2
+   > 		jmp short shows
+   > 		
+   > showret:pop es
+   > 		pop bx
+   > 		ret
+   > 
+   > code ends
+   > end start
+   > ```
+   >
+   > 2.结果
+   >
+   > <img src=http://thyrsi.com/t6/382/1538816613x-1376440090.png />
+   >
+   > 3.本例侧重展示其区别,未做错误显示处理
