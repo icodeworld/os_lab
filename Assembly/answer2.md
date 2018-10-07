@@ -1396,6 +1396,7 @@
    > 		cmp ah,0
    > 		je	showret		
    > 		mov es:[si],ah
+   > 		inc bx
    > 		add si,2
    > 		jmp short shows
    > 		
@@ -1415,3 +1416,372 @@
    >
    > <img src=http://thyrsi.com/t6/382/1538827536x-1566688347.png />
 
+### lab 16
+
+1. 安装一个新的int 7ch中断例程,为显示输出提供如下功能子程序
+
+   > 功能:
+   >
+   > 1. 清屏			;空格
+   > 2. 设置前景色		;当前屏幕中处于奇地址的属性字节的第0.1.2位
+   > 3. 设置背景色		;当前屏幕中处于奇地址的属性字节的第4.5.6位
+   > 4. 向上滚动一行	        ;依次将第n+1行的内容复制到第n行处:最后一行为空
+   >
+   > 参数
+   >
+   > 1. ah传递功能号:0表示清屏,1表示设置前景色,2表示设置背景色,3表示向上滚动一行
+   > 2. 对于1,2号功能,用al传送颜色值,(al)∈{0,1,2,3,4,5,6,7}
+   >
+   > ```assembly
+   > assume cs:code
+   > 
+   > stack segment
+   > 	db 128	dup (0)
+   > stack ends
+   > 
+   > code segment
+   > 
+   > start:
+   > 		;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中.
+   > 		mov ax,stack
+   > 		mov ss,ax
+   > 		mov sp,128
+   > 		push cs
+   > 		pop ds
+   > 		mov ax,0
+   > 		mov es,ax
+   > 		
+   > 		mov si,offset setscreen	;ds:si指向源地址
+   > 		mov di,204h				;es:di指向目的地址(即中断处理程序的起始地址)
+   > 		
+   > 		mov cx,offset setend - offset setscreen	;设置程序所占的字节数大小
+   > 		
+   > 		cld						;设置df=0,正向传送
+   > 		
+   > 		rep movsb				;循环传送
+   > 		
+   > 		push es:[7ch*4]
+   > 		pop	 es:[200h]
+   > 		push es:[7ch*4+2]
+   > 		pop es:[202h]	;原中断向量地址保存至es:[200h]
+   > 		
+   > 		cli
+   > 		mov word ptr es:[7ch*4],204h
+   > 		mov word ptr es:[7ch*4+2],0	;设置中断向量
+   > 		sti
+   > 		
+   > 		mov ah,2				;功能号2,设置背景色
+   > 		mov al,2				;设置绿色
+   > 		int 7ch
+   > 		
+   > 		push es:[200h]
+   > 		pop es:[7ch*4]
+   > 		push es:[202h]
+   > 		pop es:[7ch*4+2]		;恢复原中断向量int 7ch中断例程的入口地址
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h					;返回DOS
+   > 
+   > ;名称:setscreen,中断处理程序
+   > ;功能:1.清屏	;空格
+   > ;	  2.设置前景色		;当前屏幕中处于奇地址的属性字节的第0.1.2位
+   > ;	  3.设置背景色		;当前屏幕中处于奇地址的属性字节的第4.5.6位
+   > ;	  4.向上滚动一行	;依次将第n+1行的内容复制到第n行处:最后一行为空
+   > ;参数
+   > ;(1)ah传递功能号:0表示清屏,1表示设置前景色,2表示设置背景色,3表示向上滚动一行
+   > ;(2)对于1,2号功能,用al传送颜色值,(al)∈{0,1,2,3,4,5,6,7}
+   > ;返回:根据功能号调用相应子程序的返回值
+   > 
+   > org	204h	;表示下一指令的地址从偏移地址204h开始
+   > 
+   > setscreen:	jmp short set
+   > 
+   > 	table	dw sub1,sub2,sub3,sub4
+   > 	
+   > 	set:	push bx
+   > 			
+   > 			cmp ah,3
+   > 			ja sret
+   > 			mov bl,ah
+   > 			mov bh,0
+   > 			add bx,bx	;根据ah中的功能号计算对应子程序在table表中的偏移
+   > 			mov ax,0
+   > 			mov ds,ax
+   > 			call word ptr table[bx]	;调用对应的功能子程序
+   > 			
+   > 			
+   > 	sret:	pop bx
+   > 			ret
+   > 			
+   > 	sub1:	push bx
+   > 			push cx
+   > 			push es
+   > 			mov bx,0b800h
+   > 			mov es,bx
+   > 			mov bx,0
+   > 			mov cx,2000
+   > 	sub1s:	mov byte ptr es:[bx],' '
+   > 			add bx,2
+   > 			loop sub1s
+   > 			pop es
+   > 			pop cx
+   > 			pop bx
+   > 			ret
+   > 			
+   > 	sub2:	push bx
+   > 			push cx
+   > 			push es
+   > 			mov bx,0b800h
+   > 			mov es,bx
+   > 			mov bx,1
+   > 			mov cx,2000
+   > 	sub2s:	and byte ptr es:[bx],11111000b
+   > 			or es:[bx],al		;设置成需要的颜色
+   > 			add bx,2
+   > 			loop sub2s
+   > 			pop es
+   > 			pop cx
+   > 			pop bx
+   > 			ret
+   > 			
+   > 	sub3:	push bx
+   > 			push cx
+   > 			push es
+   > 			mov cl,4
+   > 			shl al,cl			;将低4位左移4位成为高4位
+   > 			mov bx,0b800h
+   > 			mov es,bx
+   > 			mov bx,1
+   > 			mov cx,2000
+   > 	sub3s:	and byte ptr es:[bx],10001111b
+   > 			or es:[bx],al
+   > 			and bx,2
+   > 			loop sub3s
+   > 			pop es
+   > 			pop cx
+   > 			pop bx
+   > 			ret
+   > 			
+   > 	sub4:	push cx
+   > 			push si
+   > 			push di
+   > 			push es
+   > 			push ds
+   > 			
+   > 			mov si,0b800h
+   > 			mov es,si
+   > 			mov ds,si
+   > 			mov si,160		;ds:si指向第n+1行,源地址
+   > 			mov di,0		;es:di指向第n行,目的地址
+   > 			cld				;传输方向为正
+   > 			mov cx,24		;传输长度
+   > 	sub4s:	push cx
+   > 			mov cx,160
+   > 			rep movsb		;复制一行(包括颜色)
+   > 			pop cx	
+   > 			loop sub4s		;复制24行
+   > 			
+   > 			mov cx,80
+   > 			mov si,0
+   > 	sub4s1:	mov byte ptr [160*24+si],' '	;最后一行清空
+   > 			add si,2
+   > 			loop sub4s1
+   > 			
+   > 			pop ds
+   > 			pop es
+   > 			pop di
+   > 			pop si
+   > 			pop cx
+   > 			ret		
+   > 			
+   > 	setend:	nop
+   > 	
+   > code ends
+   > end start
+   > ```
+   >
+   >
+
+## Chapter 17
+
+1. 颜色
+
+   ```assembly
+   ;技巧:利用颜色的位分布,RGB分别位于210位,故移位更为简单,从而B无需移位,G移位一次,R移位两次
+   assume cs:code
+   
+   code segment
+   start:	mov ah,0
+   		int 16h
+   		
+   		mov ah,1
+   		cmp al,'r'
+   		je red 
+   		cmp al,'g'
+   		je green
+   		cmp al,'b'
+   		je blue
+   		jmp short sret
+   		
+   	red:
+   		shl ah,1
+   	
+   	green:
+   		shl ah,1
+   		
+   	blue:
+   		mov bx,0b800h
+   		mov es,bx
+   		mov bx,1
+   		mov cx,2000
+   	s:  and byte ptr es:[bx],11111000b
+   		or es:[bx],ah
+   		add bx,2
+   		loop s
+   	
+   	sret:
+   		mov ax,4c00h
+   		int 21h
+   
+   code ends
+   end start
+   ```
+
+2. test 17.1
+
+   > ##### "在int 16h中断例程中,一定有设置IF=1的指令."这种说法对吗?
+   >
+   > - 对
+   > - 8086的中断，分为内部中断、外部中断、软件中断三类。
+   >   1. 内部中断的中断号是0~7，除了2号是外部硬件发起的不可屏蔽中断外，其它由CPU发起。比如0号中断是除法溢出中断，只要执行除法指令时被除数的高一半大于或等于除数，CPU就自动调用这个中断。这8个都是不受IF控制的。
+   >   2. 外部中断的中断号是8~0FH（286以后的CPU增加了7个外部中断，这里不讨论）。它们由外部硬件发起，比如键盘、硬盘等。它们都是可屏蔽中断。IF设置为0的时候，影响的就是这8个。
+   >   3. 从10H开始往后，直到FFH，全是软件中断。它们也全部不受IF控制。
+   >
+   > - 将IF置0，不会影响0 ~ 7这8个内部中断，不会影响10H往后（包括16H）所有中断指令。它只会影响8 ~ F之间这8个，并且，只是由CPU外部引脚的 IRQ端子上收到的外部硬件中断请求会被屏蔽。（如果你在程序中用一条 INT  08H指令，这次就是指令软中断，它也不会受IF的影响）。
+   >
+   > -   你的程序中, 程序开头cli指令设置"IF = 0". 但由于"int x"属于内中断。 忽略IF值, int 16h 照常执行。
+   >   "r还是 可以让字符变红"? 。 因为PC在"int 16h"例程中， 响应了外中断信息。
+   >
+   >   原理： "int 16h" 例程里含有sti指令, 设置IF=1. 这个时候按下"r"键，响应外中断请求，从而 "int 9h"例程得到执行。 最终 "int 16h"获取键盘信息"R" 并置于 ah=“通码", al="Ascii"中.  
+   >
+   > - 我们不能确保键盘缓冲区中会一直有数据，如果没有键盘缓冲区中没有数据，那马将会造成死锁。所以我们还是要设置IF=1使得能够响应int 9的中断。便于int 9向键盘缓冲区中写入数据，以便int 16h能个取得键盘缓冲区中的数据。
+   >
+   >   综上所述，此句话的说法是正确的。
+
+3. 字符串的输入
+
+   > 1. 程序的处理过程
+   >
+   >    1. 调用int 16h读取键盘输入
+   >    2. 如果是字符,进入字符栈,显示字符栈中的所有字符;继续执行1
+   >    3. 如果是退格符,从字符栈中弹出一个字符,显示字符栈中的所有字符,继续执行1
+   >    4. 如果是Enter键,向字符栈中压入0,返回
+   >
+   > 2. 子程序:字符栈的入栈,出栈和显示
+   >
+   >    ```assembly
+   >    ;名称:字符栈的入栈,出栈和显示
+   >    ;参数说明:	(ah)=功能号,0表示入栈,1表示出栈,2表示显示;ds:si指向字符栈空间
+   >    ;对于0号功能:(al)=入栈字符
+   >    ;对于1号功能:(al)=返回的字符
+   >    ;对于2号功能:(dh),(dl)=字符串在屏幕上显示的行,列位置
+   >    
+   >    charstack:	jmp short charstart
+   >    
+   >    table		dw charpush,charpop,charshow
+   >    top 		dw 0							;栈顶
+   >    
+   >    charstart:	push bx
+   >    			push dx
+   >    			push di
+   >    			push es
+   >    			
+   >    			cmp ah,2
+   >    			ja sret
+   >    			mov bl,ah
+   >    			mov bh,0
+   >    			add bx,bx
+   >    			jmp word ptr table[bx]
+   >    			
+   >    charpush:	mov bx,top 
+   >    			mov [si][bx],al
+   >    			inc top
+   >    			jmp sret
+   >    			
+   >    charpop:	cmp top,0
+   >    			je sret
+   >    			dec top
+   >    			mov bx,top
+   >    			mov al,[si][bx]
+   >    			jmp sret
+   >    			
+   >    charshow:	mov bx,0b800h
+   >    			mov es,bx
+   >    			mov al,160
+   >    			mov ah,0
+   >    			mul dh
+   >    			mov di,ax
+   >    			add dl,dl
+   >    			mov dh,0
+   >    			add di,dx		:es:di指向显存地址
+   >    			
+   >    			mov bx,0
+   >      charshows:cmp bx,top
+   >    			jne noempty
+   >    			mov byte ptr es:[di],' '
+   >    			jmp sret
+   >    	noempty:mov al,[si][bx]
+   >    			mov es:[di],al
+   >    			mov byte ptr es:[di+2],' '
+   >    			inc bx
+   >    			add di,2
+   >    			jmp charshows
+   >    	
+   >    sret:		pop es
+   >    			pop si
+   >    			pop dx
+   >    			pop bx
+   >    			ret
+   >    ```
+   >
+   > 3. 完整的接收字符串输入的子程序
+   >
+   >    ```assembly
+   >    getstr:		push ax
+   >    			
+   >    	getstrs:mov ah,0
+   >    			int 16h
+   >    			cmp al,20h
+   >    			jb nochar						;ASCII码小于20h,说明不是字符
+   >    			mov ah,0
+   >    			call charstack					;字符入栈
+   >    			mov ah,2
+   >    			call charstack					;显示栈中的字符
+   >    			jmp getstrs
+   >    			
+   >    nochar:		cmp ah,0eh						;退格键的扫描码
+   >    			je	backspace
+   >    			cmp ah,1ch						;Enter键的扫描码
+   >    			je enter
+   >    			jmp getstrs
+   >    			
+   >    backspace:	mov ah,1
+   >    			call charstack					;字符出栈
+   >    			mov ah,2
+   >    			call charstack					;显示栈中的字符
+   >    			jmp getstrs
+   >    			
+   >    enter:		mov al,0
+   >    			mov ah,0
+   >    			call charstack					;0入栈
+   >    			mov ah,2
+   >    			call charstack					;显示栈中的字符
+   >    			pop ax
+   >    			ret
+   >    ```
+
+4. 读取0面0道1扇区的内容到0:200
+
+   ```
+   
+   ```
