@@ -1747,6 +1747,32 @@
    > 3. 完整的接收字符串输入的子程序
    >
    >    ```assembly
+   >    assume cs:code
+   >    
+   >    data segment	
+   >    	db 256 dup(' ')
+   >    data ends 
+   >    
+   >    stack segment	
+   >    	db 64 dup (0)
+   >    stack ends 
+   >    
+   >    code segment
+   >    start:
+   >    			mov ax, stack			
+   >                mov ss, ax			
+   >                mov sp, 64		
+   >                
+   >                mov ax, data				
+   >                mov ds, ax								
+   >                mov ax, 0				
+   >                mov si, 0								
+   >                mov dh, 5				
+   >                mov dl, 0				
+   >                call getstr								
+   >                mov ax, 4c00h				
+   >                int 21h
+   >    
    >    getstr:		push ax
    >    			
    >    	getstrs:mov ah,0
@@ -1778,12 +1804,77 @@
    >    			call charstack					;显示栈中的字符
    >    			pop ax
    >    			ret
+   >    			
+   >    ;名称:字符栈的入栈,出栈和显示
+   >    ;参数说明:	(ah)=功能号,0表示入栈,1表示出栈,2表示显示;ds:si指向字符栈空间
+   >    ;对于0号功能:(al)=入栈字符
+   >    ;对于1号功能:(al)=返回的字符
+   >    ;对于2号功能:(dh),(dl)=字符串在屏幕上显示的行,列位置
+   >    
+   >    charstack:	jmp short charstart
+   >    
+   >    table		dw charpush,charpop,charshow
+   >    top 		dw 0							;栈顶
+   >    
+   >    charstart:	push bx
+   >    			push dx
+   >    			push di
+   >    			push es
+   >    			
+   >    			cmp ah,2
+   >    			ja sret
+   >    			mov bl,ah
+   >    			mov bh,0
+   >    			add bx,bx
+   >    			jmp word ptr table[bx]
+   >    			
+   >    charpush:	mov bx,top 
+   >    			mov [si][bx],al
+   >    			inc top
+   >    			jmp sret
+   >    			
+   >    charpop:	cmp top,0
+   >    			je sret
+   >    			dec top
+   >    			mov bx,top
+   >    			mov al,[si][bx]
+   >    			jmp sret
+   >    			
+   >    charshow:	mov bx,0b800h
+   >    			mov es,bx
+   >    			mov al,160
+   >    			mov ah,0
+   >    			mul dh
+   >    			mov di,ax
+   >    			add dl,dl
+   >    			mov dh,0
+   >    			add di,dx						;es:di指向显存地址
+   >    			
+   >    			mov bx,0
+   >      charshows:cmp bx,top
+   >    			jne noempty
+   >    			mov byte ptr es:[di],' '
+   >    			jmp sret
+   >    	noempty:mov al,[si][bx]
+   >    			mov es:[di],al
+   >    			mov byte ptr es:[di+2],' '
+   >    			inc bx
+   >    			add di,2
+   >    			jmp charshows
+   >    	
+   >    sret:		pop es
+   >    			pop si
+   >    			pop dx
+   >    			pop bx
+   >    			ret
+   >    code ends
+   >    end start
    >    ```
+   >
+   > 4. 结果![1538901916990](E:\icodeworld.github.io\os_lab\Assembly\1538901916990.png)
 
 4. 读取0面0道1扇区的内容到0:200
 
    ```
    
    ```
-
-   我的心
