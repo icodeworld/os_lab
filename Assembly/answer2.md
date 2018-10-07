@@ -1420,19 +1420,18 @@
 
 1. 安装一个新的int 7ch中断例程,为显示输出提供如下功能子程序
 
-   > 功能:
-   >
-   > 1. 清屏			;空格
-   > 2. 设置前景色		;当前屏幕中处于奇地址的属性字节的第0.1.2位
-   > 3. 设置背景色		;当前屏幕中处于奇地址的属性字节的第4.5.6位
-   > 4. 向上滚动一行	        ;依次将第n+1行的内容复制到第n行处:最后一行为空
-   >
-   > 参数
-   >
-   > 1. ah传递功能号:0表示清屏,1表示设置前景色,2表示设置背景色,3表示向上滚动一行
-   > 2. 对于1,2号功能,用al传送颜色值,(al)∈{0,1,2,3,4,5,6,7}
+   > 1. 程序
    >
    > ```assembly
+   > ;功能:
+   > ;清屏			;空格
+   > ;设置前景色		;当前屏幕中处于奇地址的属性字节的第0.1.2位
+   > ;设置背景色		;当前屏幕中处于奇地址的属性字节的第4.5.6位
+   > ;向上滚动一行	        ;依次将第n+1行的内容复制到第n行处:最后一行为空
+   > ;参数
+   > ;ah传递功能号:0表示清屏,1表示设置前景色,2表示设置背景色,3表示向上滚动一行
+   > ;对于1,2号功能,用al传送颜色值,(al)∈{0,1,2,3,4,5,6,7}
+   > 
    > assume cs:code
    > 
    > stack segment
@@ -1471,7 +1470,7 @@
    > 		sti
    > 		
    > 		mov ah,2				;功能号2,设置背景色
-   > 		mov al,2				;设置绿色
+   > 		mov al,4				;设置红色
    > 		int 7ch
    > 		
    > 		push es:[200h]
@@ -1505,10 +1504,8 @@
    > 			mov bl,ah
    > 			mov bh,0
    > 			add bx,bx	;根据ah中的功能号计算对应子程序在table表中的偏移
-   > 			mov ax,0
-   > 			mov ds,ax
    > 			call word ptr table[bx]	;调用对应的功能子程序
-   > 			
+   > 			;此处易犯错,由于table为数据标号,已经包含了段地址,故不能指定
    > 			
    > 	sret:	pop bx
    > 			ret
@@ -1555,7 +1552,7 @@
    > 			mov cx,2000
    > 	sub3s:	and byte ptr es:[bx],10001111b
    > 			or es:[bx],al
-   > 			and bx,2
+   > 			add bx,2
    > 			loop sub3s
    > 			pop es
    > 			pop cx
@@ -1600,7 +1597,14 @@
    > end start
    > ```
    >
+   > 2.结果
    >
+   > ![1538913353517](E:\icodeworld.github.io\os_lab\Assembly\1538913353517.png)
+   >
+   > 3.反思
+   >
+   > - 由于在83行处加入了"mov ax,0"以及"mov ds,ax"从而无法正确执行程序,实际上,数据标号既包括偏移地址又包括段地址.故不另加入段
+   > - 此外,org	204h,使下一条指令的偏移地址为204h,与装入的程序一致,目的是保证table数据标号的正确指向
 
 ## Chapter 17
 
@@ -1873,8 +1877,188 @@
    >
    > 4. 结果![1538901916990](E:\icodeworld.github.io\os_lab\Assembly\1538901916990.png)
 
-4. 读取0面0道1扇区的内容到0:200
+4. 读取或者写入0面0道1扇区的内容到0:200
 
+   ```assembly
+    ;参数:  (ah)=int 13h的功能号(2表示读扇区)
+   		;(al)=读取的扇区数
+   		;(ch)=磁道号
+   		;(cl)=扇区号
+   		;(dh)=磁头号
+   		;(dl)=驱动器号	软驱  0:软驱A  1:软驱B
+   					   ;硬盘  80h:硬盘C	81h:硬盘D
+   		;es:bx指向接收从扇区读入数据的内存区
+   ;返回:  成功: (ah)=0,(al)=读入的扇区数
+   	   ;失败: (ah)=出错代码
+    mov ax,0
+    mov es,ax
+    mov bx,200h
+    
+    mov al,1
+    mov ch,0
+    mov cl,1
+    mov dl,0
+    mov dh,0
+    
+    mov ah,2
+    int 13h
+    
+     ;参数:  (ah)=int 13h的功能号(3表示写扇区)
+   		;(al)=写入的扇区数
+   		;(ch)=磁道号
+   		;(cl)=扇区号
+   		;(dh)=磁头号
+   		;(dl)=驱动器号	软驱  0:软驱A  1:软驱B
+   					   ;硬盘  80h:硬盘C	81h:硬盘D
+   		;es:bx指向将写入磁盘的数据
+   ;返回:  成功: (ah)=0,(al)=写入的扇区数
+   	   ;失败: (ah)=出错代码
+   	   
+    mov ax,0
+    mov es,ax
+    mov bx,200h
+    
+    mov al,1
+    mov ch,0
+    mov cl,1
+    mov dl,0
+    mov dh,0
+    
+    mov ah,3
+    int 13h
    ```
-   
-   ```
+
+### lab 17
+
+1. > 1.程序
+   >
+   > ```assembly
+   > 
+   > 	  
+   > assume cs:code
+   > stack segment
+   > 	db 64 dup(0)
+   > stack ends
+   > 
+   > code segment
+   > 
+   > start:
+   > 			;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中.
+   > 		mov ax,stack
+   > 		mov ss,ax
+   > 		mov sp,128
+   > 		
+   > 		push cs
+   > 		pop ds
+   > 		
+   > 		mov ax,0
+   > 		mov es,ax
+   > 		
+   > 		mov si,offset int7ch	;ds:si指向源地址
+   > 		mov di,204h				;es:di指向目的地址(即中断处理程序的起始地址)
+   > 		
+   > 		mov cx,offset int7chend - offset int7ch	;设置程序所占的字节数大小
+   > 		
+   > 		cld						;设置df=0,正向传送
+   > 		
+   > 		rep movsb				;循环传送
+   > 		
+   > 		push es:[7ch*4]
+   > 		pop	 es:[200h]
+   > 		push es:[7ch*4+2]
+   > 		pop es:[202h]	;原中断向量地址保存至es:[200h]
+   > 		
+   > 		cli
+   > 		mov word ptr es:[7ch*4],204h
+   > 		mov word ptr es:[7ch*4+2],0	;设置中断向量
+   > 		sti
+   > 		
+   > 		mov ah,2				;功能号2,设置背景色
+   > 		mov al,2				;设置绿色
+   > 		int 7ch
+   > 		
+   > 		push es:[200h]
+   > 		pop es:[7ch*4]
+   > 		push es:[202h]
+   > 		pop es:[7ch*4+2]		;恢复原中断向量int 7ch中断例程的入口地址
+   > 		
+   > 		mov ax,4c00h
+   > 		int 21h					;返回DOS		
+   > 		
+   >  ;功能:实现通过逻辑扇区号对软盘进行读写
+   >  ;参数:
+   > 	  ;(1)用ah传递功能号:0表示读,1表示写
+   > 	  ;(2)用dx传递要读写的扇区的逻辑扇区号
+   > 	  ;(3)用es:bx指向存储读出数据或写入数据的内存区	
+   > 	   ;参数:  (ah)=int 13h的功能号(2表示读扇区)
+   > 		;(al)=读取的扇区数
+   > 		;(ch)=磁道号
+   > 		;(cl)=扇区号
+   > 		;(dh)=磁头号
+   > 		;(dl)=驱动器号	软驱  0:软驱A  1:软驱B
+   > 					   ;硬盘  80h:硬盘C	81h:硬盘D
+   > 		;es:bx指向接收从扇区读入数据的内存区
+   > ;返回:  成功: (ah)=0,(al)=读入的扇区数
+   > 	   ;失败: (ah)=出错代码
+   > org	204h	;表示下一指令的地址从偏移地址204h开始
+   > 
+   > int7ch:		jmp short set
+   > 
+   > 	table	dw read,write
+   > 	
+   > set:		push ax
+   > 			push cx
+   > 			push dx
+   > 			
+   > 			cmp ah,1
+   > 			ja sret
+   > 			
+   > 			cmp ax,2879
+   > 			ja errors		;若大于软盘的最大扇区,报错
+   > 			
+   > 			mov dx,0
+   > 			mov bx,1440
+   > 			div bx			;(ax)=面号,dx为剩余的磁道号
+   > 														
+   > 			push dx
+   > 			mov dh,al		;(dh)=磁头号
+   > 			mov dl,0		;(dl)=驱动器号
+   > 			
+   > 			pop ax			;剩余的磁道号赋给ax
+   > 			mov bl,18
+   > 			div bl			;(al)为为磁道号,(ah)为剩余的扇区号
+   > 			
+   > 			mov ch,al		;(ch)=磁道号
+   > 			mov cl,ah
+   > 			inc cl			;(cl)=扇区号
+   > 			
+   > 			mov al,1		;读写一个扇区
+   > 			
+   > 			mov bl,ah
+   > 			mov bh,0
+   > 			add bx,bx	;根据ah中的功能号计算对应子程序在table表中的偏移
+   > 			mov si,0
+   > 			mov ds,si
+   > 			call word ptr table[bx]	;调用对应的功能子程序
+   > 			
+   > 			
+   > sret:		pop dx
+   > 			pop cx
+   > 			pop ax
+   > 			iret
+   > 			
+   > read:		mov ah,2
+   > 			int 13h
+   > 			
+   > write:		mov ah,3
+   > 			int 13h
+   > 				
+   > errors:			mov ah,0		;返回错误
+   > 
+   > int7chend:		nop
+   > 
+   > code ends
+   > end start
+   > ```
+   >
+   >
