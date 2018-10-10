@@ -1935,8 +1935,6 @@
    > 1.程序
    >
    > ```assembly
-   > 
-   > 	  
    > assume cs:code
    > stack segment
    > 	db 64 dup(0)
@@ -1948,7 +1946,7 @@
    > 			;安装,主程序负责将中断处理程序转移到起始地址为0:200内存单元中.
    > 		mov ax,stack
    > 		mov ss,ax
-   > 		mov sp,128
+   > 		mov sp,64
    > 		
    > 		push cs
    > 		pop ds
@@ -1975,8 +1973,10 @@
    > 		mov word ptr es:[7ch*4+2],0	;设置中断向量
    > 		sti
    > 		
-   > 		mov ah,2				;功能号2,设置背景色
-   > 		mov al,2				;设置绿色
+   > 		mov ah,0				;功能号0,表示读
+   > 		mov dx,2879				;逻辑扇区号为2879
+   > 		mov bx,0
+   > 		mov es,bx				;es:bx=0:0
    > 		int 7ch
    > 		
    > 		push es:[200h]
@@ -2008,21 +2008,23 @@
    > 
    > 	table	dw read,write
    > 	
-   > set:		push ax
+   > set:		
    > 			push cx
    > 			push dx
+   > 			push ax			;便于恢复
    > 			
    > 			cmp ah,1
    > 			ja sret
    > 			
-   > 			cmp ax,2879
+   > 			cmp dx,2879
    > 			ja errors		;若大于软盘的最大扇区,报错
    > 			
-   > 			mov dx,0
+   > 			mov ax,dx		;(ax)=逻辑扇区号
+   > 			mov dx,0		;高位置0
    > 			mov bx,1440
    > 			div bx			;(ax)=面号,dx为剩余的磁道号
-   > 														
-   > 			push dx
+   > 			
+   > 			push dx			;保存余下的磁道号								
    > 			mov dh,al		;(dh)=磁头号
    > 			mov dl,0		;(dl)=驱动器号
    > 			
@@ -2034,6 +2036,8 @@
    > 			mov cl,ah
    > 			inc cl			;(cl)=扇区号
    > 			
+   > 			
+   > 			pop ax			;恢复功能号
    > 			mov al,1		;读写一个扇区
    > 			
    > 			mov bl,ah
@@ -2044,15 +2048,17 @@
    > 			call word ptr table[bx]	;调用对应的功能子程序
    > 			
    > 			
-   > sret:		pop dx
+   > sret:		pop ax
+   > 			pop dx
    > 			pop cx
-   > 			pop ax
    > 			iret
    > 			
-   > read:		mov ah,2
+   > read:		
+   > 			mov ah,2			
    > 			int 13h
    > 			
-   > write:		mov ah,3
+   > write:		
+   > 			mov ah,3
    > 			int 13h
    > 				
    > errors:			mov ah,0		;返回错误
@@ -2063,3 +2069,18 @@
    > end start
    > ```
    >
+   > 2、总结
+   >
+   > 在debug下进行测试，当给定<u>mov dx,2879   ;逻辑扇区号为2879</u>时，下面参数显示正确，由于时间不足，未在软盘上进行测试。
+   >
+   > <img src=http://thyrsi.com/t6/385/1539165723x1822611263.png />
+   >
+   > 犯过的错误：
+   >
+   > 1. 栈指针设置错误，致使程序执行第35行时出现未知程序，原因是sp刚开始设置成128（将db看成dw，造成误设），由于程序也在这个溢出的栈空间中，当29行与31行执行时，其内容便覆盖到该处（35行处对应的地址）本应该是正确指令的位置，从而当执行35行时便会是执行覆盖的指令。
+   > 2. 在使用书中算法进行逻辑扇区号与各种参数的转换过程中，由于未及时恢复ah入口参数，造成数据标号偏移地址计算不准确，解决方法便是在子程序起始处保存在末尾，计算偏移地址之前先恢复，由于sret 和 read或者write只会执行其中一种情形，故不会造成重复弹出。
+
+## End
+
+1. 通过这次汇编语言学习，对计算机底层有了一定的了解，能够写些简单的程序，行数500行左右，寒假需要深入学习计算机从加电开始到把控制权交给OS的完整的过程，并能自己动手按照自己的要求进行编程，此外，能够自己写些对自己实用的小程序。
+
