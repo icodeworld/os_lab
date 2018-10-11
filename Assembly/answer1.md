@@ -2561,7 +2561,7 @@ code segment
 	start:	
 		mov ax,stack
 		mov ss,ax
-		mov sp,16	;栈初始化用来保存寄存器值（栈不可以大？）
+		mov sp,16	;栈初始化用来保存寄存器值
 		
 		mov ax,stack2
 		mov es,ax	;临时存放余数
@@ -2601,10 +2601,11 @@ code segment
 	;返回：无
 	;应用举例：编程，将数据12666以十进制的形式在屏幕的8行3列，用绿色显示。
 		
-	dtoc:    push sp		;供以后的子程序共用一个栈
-
+	dtoc:   push sp		;供以后的子程序共用一个栈
+			mov byte ptr es:[si],0				;0结尾符入栈
+			inc si
 		;无法使用div指令
-		count:			
+		count:	
 			mov dx,0	;高位置0 (dx)始终为0
 			mov cx,10	;除数 
 			call divdw	;调用可能溢出型除法  
