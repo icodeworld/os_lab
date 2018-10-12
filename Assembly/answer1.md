@@ -2423,21 +2423,20 @@ start:
 		add bx,ax   ;complete the relation of adress mapping
 		
 		
-		mov di,0	;char offset
-		mov si,0	;location offset
+		mov di,0	;location offset
 		
 		mov al,cl	;store color
 		
 	s1:				;write character;green
 		mov ch,0					
-		mov cl,ds:[di]		;put the char into cl
+		mov cl,ds:[si]		;put the char into cl
 		jcxz ok
 		
 		mov ch,al
-		mov es:[si][bx],cx	;pour char and color into displace location 
+		mov es:[di][bx],cx	;pour char and color into displace location 
 		
-		add si,2
-		inc di
+		add di,2
+		inc si				;point to next char
 	
 	    jmp short s1
 	
@@ -2459,7 +2458,7 @@ start:
 
 10_2
 
-关键：时刻注意dx ,ax分别代表什么
+关键：时刻注意dx ,ax分别代表什么第17行,犯过错.add
 
 ```assembly
 ;divdw
@@ -2509,7 +2508,7 @@ start:
 		div cx			;dx:ax rem(H/N)*65536+L/N
 		
 		mov cx,dx		;余数赋给cx
-		add dx,bx		;高位相加
+		mov dx,bx		;高位
 		
 		pop bx
 		ret
@@ -2654,7 +2653,7 @@ code segment
 			div cx			;dx:ax rem(H/N)*65536+L/N
 			
 			mov cx,dx		;余数赋给cx
-			add dx,bx		;高位相加
+			mov dx,bx		;高位
 			
 			
 			pop bx
