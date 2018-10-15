@@ -211,10 +211,10 @@ kernel_thread(int (*fn)(void *), void *arg, uint32_t clone_flags) {
     struct trapframe tf;
     memset(&tf, 0, sizeof(struct trapframe));
     tf.tf_cs = KERNEL_CS;
-    tf.tf_ds = tf.tf_es = tf.tf_ss = KERNEL_DS;
-    tf.tf_regs.reg_ebx = (uint32_t)fn;
+    tf.tf_ds = tf.tf_es = tf.tf_ss = KERNEL_DS;		//set trapframe-part1
+    tf.tf_regs.reg_ebx = (uint32_t)fn;				//represent the actual entry address
     tf.tf_regs.reg_edx = (uint32_t)arg;
-    tf.tf_eip = (uint32_t)kernel_thread_entry;
+    tf.tf_eip = (uint32_t)kernel_thread_entry;		//
     return do_fork(clone_flags | CLONE_VM, 0, &tf);
 }
 
