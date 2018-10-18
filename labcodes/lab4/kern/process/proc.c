@@ -86,6 +86,7 @@ static struct proc_struct *
 alloc_proc(void) {
     struct proc_struct *proc = kmalloc(sizeof(struct proc_struct));
     if (proc != NULL) {
+
     //LAB4:EXERCISE1 YOUR CODE
     /*
      * below fields in proc_struct need to be initialized
@@ -102,6 +103,18 @@ alloc_proc(void) {
      *       uint32_t flags;                             // Process flag
      *       char name[PROC_NAME_LEN + 1];               // Process name
      */
+		proc->state = PROC_UNINIT;//设置进程为未初始化状态
+        proc->pid = -1;       //未初始化的进程id=-1
+        proc->runs = 0;       //初始化时间片
+        proc->kstack = 0;     //初始化内存栈的地址
+        proc->need_resched = 0;   //是否需要调度设为不需要
+        proc->parent = NULL;      //置空父节点
+        proc->mm = NULL;      //置空虚拟内存
+        memset(&(proc->context), 0, sizeof(struct context));//初始化上下文
+        proc->tf = NULL;      //中断帧指针设置为空
+        proc->cr3 = boot_cr3;     //页目录设为内核页目录表的基址
+        proc->flags = 0;      //初始化标志位
+        memset(proc->name, 0, PROC_NAME_LEN);//置空进程名
     }
     return proc;
 }
@@ -213,8 +226,8 @@ kernel_thread(int (*fn)(void *), void *arg, uint32_t clone_flags) {
     tf.tf_cs = KERNEL_CS;
     tf.tf_ds = tf.tf_es = tf.tf_ss = KERNEL_DS;		//set trapframe-part1
     tf.tf_regs.reg_ebx = (uint32_t)fn;				//represent the actual entry address
-    tf.tf_regs.reg_edx = (uint32_t)arg;
-    tf.tf_eip = (uint32_t)kernel_thread_entry;		//
+    tf.tf_regs.reg_edx = (uint32_t)arg;				//the beginning address of arguments
+    tf.tf_eip = (uint32_t)kernel_thread_entry;		//set trapframe-part1
     return do_fork(clone_flags | CLONE_VM, 0, &tf);
 }
 
@@ -254,7 +267,7 @@ copy_thread(struct proc_struct *proc, uintptr_t esp, struct trapframe *tf) {
     proc->tf->tf_esp = esp;
     proc->tf->tf_eflags |= FL_IF;
 
-    proc->context.eip = (uintptr_t)forkret;
+    proc->context.eip = (uintptr_t)forkret;		//restore
     proc->context.esp = (uintptr_t)(proc->tf);
 }
 
@@ -296,6 +309,38 @@ do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
     //    5. insert proc_struct into hash_list && proc_list
     //    6. call wakeup_proc to make the new child process RUNNABLE
     //    7. set ret vaule using child proc's pid
+	
+	//调用alloc_proc()函数申请分配内存块
+	if ((proc = alloc_proc() == NULL)
+	{
+	goto fork_out;
+	}
+	//设置父节点为当前进程
+	proc->parent = current;		
+	//分配内核栈
+	if (setup_kstack(proc) != 0) {
+		goto bad_fork_cleanup_proc;		
+	}
+	//调用copy_mm()函数复制父进程的内存信息到子进程
+	if (copy_mm(clone_flags,proc)!=0) {
+		goto bad_fork_cleanup_kstack;
+	//调用copy_thread()函数复制父进程的中断帧和上下文信息
+	copy_thread(proc,stack,tf);
+	
+	bool intr_flag;
+    local_intr_save(intr_flag);
+    {
+        proc->pid = get_pid();
+        hash_proc(proc);//将新进程加入hash_list
+        list_add(&proc_list, &(proc->list_link));//将新进程加入proc_list
+        nr_process ++;//进程数加1
+    }
+    local_intr_restore(intr_flag);
+    //唤醒进程，等待调度
+    wakeup_proc(proc);
+    //返回子进程的pid
+    ret = proc->pid;
+	
 fork_out:
     return ret;
 
