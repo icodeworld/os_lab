@@ -2,8 +2,7 @@
 
 - [Lab 7](#lab-7)
     - [练习1](#练习1)
-            - [简单说明如下：](#简单说明如下)
-    - [同步互斥的设计与实现](#同步互斥的设计与实现)
+        - [同步互斥的设计与实现](#同步互斥的设计与实现)
     - [练习2](#练习2)
 
 <!-- /TOC -->
@@ -16,7 +15,7 @@
 > 1. 请在实验报告中给出内核级信号量的设计描述，并说其大致流程。
 > 2. 请在实验报告中给出给用户态进程/线程提供信号量机制的设计方案，并比较说明给内核级提供信号量机制的异同。
 
-#### 简单说明如下：
+简单说明如下：
 
 1. kern/schedule/{sched.h,sched.c}: 增加了定时器（timer）机制，用于进程/线程的do_sleep功能。
 2. kern/sync/sync.h: 去除了lock实现（这对于不抢占内核没用）。
@@ -28,7 +27,7 @@
 8. kern/sync/check_sync.c：实现了基于管程的哲学家就餐问题，在本次实验中是练习的一部分，要求完成基于管程的哲学家就餐问题。
 9. kern/mm/vmm.[ch]：用信号量mm_sem取代mm_struct中原有的mm_lock。（本次实验不用管）
 
-## 同步互斥的设计与实现
+### 同步互斥的设计与实现
 
 - 实验七设计实现了多种同步互斥手段，包括时钟中断管理、等待队列、信号量、管程机制（包含条件变量设计）等，并基于信号量实现了哲学家问题的执行过程。而本次实验的练习是要求用管程机制实现哲学家问题的执行过程。
 
@@ -242,7 +241,7 @@
 
 如上分析，只需修改cond_signal (condvar_t *cvp)、cond_wait (condvar_t *cvp)、phi_take_forks_condvar(int i)、phi_put_forks_condvar(int i)
 
-1. cond_signal (condvar_t *cvp)
+1. ### cond_signal (condvar_t *cvp)
 
    ```c
    void cond_signal (condvar_t *cvp) {
@@ -268,7 +267,7 @@
    }
    ```
 
-2. cond_wait (condvar_t *cvp)
+2. ### cond_wait (condvar_t *cvp)
 
    ```c
    void
@@ -295,7 +294,7 @@
    }
    ```
 
-3. phi_take_forks_condvar(int i)
+3. ### phi_take_forks_condvar(int i)
 
    ```c
    void phi_take_forks_condvar(int i) {
@@ -324,7 +323,7 @@
    }
    ```
 
-4. phi_put_forks_condvar(int i)
+4. ### phi_put_forks_condvar(int i)
 
    ```c
    void phi_put_forks_condvar(int i) {
