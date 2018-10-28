@@ -27,7 +27,7 @@
 
 ### Answers
 
-> 1. function
+> 1. They are called functions.
 >
 > 2. This directive causes the preprocessor to add the contents of  the iostream file to your program.This is a typical preprocessor action:adding or replacing text in the source code before it's compiled.
 >
@@ -43,7 +43,7 @@
 >
 > 7. `cin >> cheeses;`
 >
-> 8. `cout << "We have " << cheeses << " varieties of cheese,";`
+> 8. `cout << "We have " << cheeses << " varieties of cheese\n";`
 >
 > 9. ```c++
 >    int froop(double t);	//the type of argument is double,the type of return is int 
@@ -51,9 +51,7 @@
 >    int pune(void);			//the type of argument is void,the type of return is int
 >    ```
 >
-> 10. 1.main(),because main() will add the  default statement `return 0`.
->
->     2.those function without return value.
+> 10. You don't have to use `return` in a function when the function has the return type `void`.However,you can use it if you don't give a return value: `return;` 
 >
 > 11. namespace
 >
@@ -186,7 +184,7 @@ Answer
 
    ![1540626625723](E:\icodeworld.github.io\os_lab\c++ Primer Plus(sixth)\assets\1540626625723.png)
 
-4. convert age to months
+4. convert_int
 
    ```c++
    // convert.cpp -- converts stone to pounds
@@ -210,4 +208,89 @@ Answer
 
    ![1540626896185](E:\icodeworld.github.io\os_lab\c++ Primer Plus(sixth)\assets\1540626896185.png)
 
-5. 
+5. convert_float
+
+   ```c++
+   // convert.cpp -- converts stone to pounds
+   #include <iostream>
+   using namespace std;       // affects all function definitions
+   float convert(float);        // function prototype
+   int main()
+   {
+       float celsius;
+   	cout << "Please enter a Celsius value: ";
+   	cin >> celsius;
+   	float Fahrenheit = convert(celsius);
+   	cout
+   		 << celsius
+   		 << " degrees Celsius is "
+   		 << Fahrenheit
+   		 << " degrees Fahrenheit." ;
+   }
+   
+   float convert(float sts)
+   {
+   	return 1.8 * sts + 32.0;
+   }
+   ```
+
+   ![1540627491721](E:\icodeworld.github.io\os_lab\c++ Primer Plus(sixth)\assets\1540627491721.png)
+
+6. convert_double
+
+   ```c++
+   // convert_double
+   #include <iostream>
+   using namespace std;       // affects all function definitions
+   double convert(double);        // function prototype
+   int main()
+   {
+       double lightyear;
+   	cout << "Enter the number of light years: ";
+   	cin >> lightyear;
+   	double distance = convert(lightyear);
+   	cout
+   		 << lightyear
+   		 << " light years = "
+   		 << distance
+   		 << " astronomical units." ;
+   }
+   
+   double convert(double sts)
+   {
+   	return 63240 * sts;
+   }
+   ```
+
+   ![1540628017764](E:\icodeworld.github.io\os_lab\c++ Primer Plus(sixth)\assets\1540628017764.png)
+
+7. more arguments
+
+   ```c++
+   // convert_double
+   #include <iostream>
+   using namespace std;       // affects all function definitions
+   void link(int,int);        // function prototype
+   int main()
+   {
+   	int hours;
+   	int minutes;
+   	cout << "Enter the number of hours: ";
+   	cin >> hours;
+   	cout << "Enter the number of minutes: ";
+   	cin >> minutes;
+   	link(hours,minutes);
+   	return 0;
+   }
+   
+   void link(int hour,int minute)
+   {
+   	cout << "Time: "
+   		 << hour
+   		 << ":"
+   		 << minute;
+   }
+   ```
+
+   ![1540628513427](E:\icodeworld.github.io\os_lab\c++ Primer Plus(sixth)\assets\1540628513427.png)
+
