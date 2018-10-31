@@ -2,7 +2,7 @@
 
 ## Unfamiliar points of knowledge
 
-##### Data property
+### Data property1
 
 To store an item of information in a computer,the program must keep track of three fundamental properties:
 
@@ -46,9 +46,9 @@ The static_cast<> operator is more restrictive than the traditional type cast.
 > 1. Why does C++ have more than one integer type?
 >
 > 2. Declare variables matching the following descriptions:
->   a. A short integer with the value 80
->   b. An unsigned int integer with the value 42,110
->   c. An integer with the value 3,000,000,000
+>     a. A short integer with the value 80
+>     b. An unsigned int integer with the value 42,110
+>     c. An integer with the value 3,000,000,000
 >
 > 3. What safeguards does C++ provide to keep you from exceeding the limits of an integer type?
 >
@@ -57,19 +57,19 @@ The static_cast<> operator is more restrictive than the traditional type cast.
 > 5. What is the distinction between 33L and 33?
 >
 > 6. Consider the two C++ statements that follow:
->   char grade = 65;
->   char grade = 'A';
+>     char grade = 65;
+>     char grade = 'A';
 >
 >   Are they equivalent?
 >
 > 7. How could you use C++ to find out which character the code 88 represents? Come up with at least two ways.
 > 8. Assigning a long value to a float can result in a rounding error. What about assigning long to double? long long to double?
 > 9. Evaluate the following expressions as C++ would:
->   a. 8 * 9 + 2
->   b. 6 * 3 / 4
->   c. 3 / 4 * 6
->   d. 6.0 * 3 / 4
->   e. 15 % 4
+>     a. 8 * 9 + 2
+>     b. 6 * 3 / 4
+>     c. 3 / 4 * 6
+>     d. 6.0 * 3 / 4
+>     e. 15 % 4
 > 10. Suppose x1 and x2 are two type double variables that you want to add as integers and assign to an integer variable. Construct a C++ statement for doing so. What if you want to add them as type double and then convert to int?
 > 11. What is the variable type for each of the following declarations?
 >     a. auto cars = 15;
