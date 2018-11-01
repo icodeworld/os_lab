@@ -227,10 +227,10 @@ Sometimes new C++ users become confused about when to use the dot operator and w
 ## Chapter Review
 
 > 1. How would you declare each of the following?
->   a. actors is an array of 30 char.
->   b. betsie is an array of 100 short.
->   c. chuck is an array of 13 float.
->   d. dipsea is an array of 64 long double.
+>     a. actors is an array of 30 char.
+>     b. betsie is an array of 100 short.
+>     c. chuck is an array of 13 float.
+>     d. dipsea is an array of 64 long double.
 >
 > 2. Does Chapter Review Question 1 use the array template class instead of built-in arrays.
 >
@@ -332,13 +332,328 @@ Sometimes new C++ users become confused about when to use the dot operator and w
     // or use *pt and *(pf +9)
     ```
 
-13. ```
-    // array
-    cin >> 
-    
-    
-    
-    
-    
-    
+13. ```c++
+    unsigned int n;
+    cin >> n;
+    vector<int> pt(n);
+    int * pt = new int [n];// create an array of n ints
     ```
+
+14. Valid.It prints the address of the string.
+
+15. ```c++
+    struct fish
+    {
+         char kind[20];
+         int weight;
+         float length;
+    };
+    
+    fish * pt = new fish;
+    cout << "Enter the kind: ";
+    cin >> pt->kind;
+    ```
+
+16. Using `cin >> address`causes a program to skip over whitespace until finds nonwhitespace. It then reads characters until it encounters whitespace again. Thus, it will skip over the newline following the numeric input, avoiding that problem. On the other hand, it will read just a single word(if having whitespace), not an entire line.
+
+17. ```c++
+    #include <string>
+    #include <array>
+    #include <std::vector>
+    
+    // or const int Str_num {10};
+    
+    std::array<std::string, 10> ai;	// create array object of 10 strings
+    std::vector<std::string> vd(10);	// create an array of 10 strings
+    ```
+
+### Programming Exercises
+
+1. Write a C++ program that requests and displays information as shown in the following example of output:
+    What is your first name? Betty Sue
+    What is your last name? Yewe
+    What letter grade do you deserve? B
+    What is your age? 22
+    Name: Yewe, Betty Sue
+    Grade: C
+    Age: 22
+
+  Note that the program should be able to accept first names that comprise more than one word. Also note that the program adjusts the grade downward—that is, up one letter. Assume that the user requests an A, a B, or a C so that you don’t have to worry about the gap between a D and an F.
+
+  ```c++
+  # include <iostream>
+  int main()
+  {
+  	using namespace std;
+  	const int Size = 20;
+  	char firstname[Size];
+  	char lastname[Size];
+  	char grade;
+  	unsigned int age;
+  	
+  	cout << "What is your first name? ";
+  	cin.get(firstname, Size).get();
+  	
+  	cout << "What is your last name? ";
+  	cin.get(lastname, Size).get();
+  
+  	cout << "What letter grade do you deserve? ";
+  	(cin >> grade).get();
+  	
+  	cout << "What is your age? ";
+  	(cin >> age).get();
+  	
+  	cout << "Name: " << lastname << ", " << firstname <<endl;
+  	cout << "Grade: " << char(grade + 1) << endl;
+  	cout << "Age: " << age << endl;
+  	
+  	return 0;
+  }
+  ```
+
+2. Rewrite Listing 4.4, using the C++ string class instead of char arrays.
+
+   Caution: `getline(cin, name);`
+
+   ```c++
+   #include <iostream>
+   #include <string>   // make string class avaliable
+   int main()
+   {
+   	using namespace std;
+   	string name;    // create an empty string object
+   	string dessert;
+   	cout << "Enter your name:\n";
+   	getline(cin, name);
+   	cout << "Enter your favorite dessert:\n";
+   	getline(cin, dessert);
+   	cout << "I have some delicious " << dessert;
+   	cout << " for you, " << name << ".\n";
+   	return 0;
+   }
+   ```
+
+3. Write a program that asks the user to enter his or her first name and then last name, and that then constructs, stores, and displays a third string, consisting of the user’s last name followed by a comma, a space, and first name. Use char arrays and functions from the cstring header file. A sample run could look like this:
+    Enter your first name: Flip
+    Enter your last name: Fleming
+    Here's the information in a single string: Fleming,Flip
+
+  ```c++
+  #include <iostream>
+  #include <string>   // make string class avaliable
+  int main()
+  {
+  	using namespace std;
+  	const int Size = 20;
+  	char firstname[Size];
+  	char lastname[Size];
+  
+  	cout << "What is your first name: ";
+  	cin.get(firstname, Size).get();
+  
+  	cout << "What is your last name: ";
+  	cin.get(lastname, Size).get();
+  
+  	cout << "Here's the information in a single string: " << lastname << ", " << firstname <<endl;
+  	return 0;
+  }
+  ```
+
+4. Write a program that asks the user to enter his or her first name and then last name, and that then constructs, stores, and displays a third string consisting of the user’s last name followed by a comma, a space, and first name. Use string objects and methods from the string header file. A sample run could look like this:
+   Enter your first name: Flip
+   Enter your last name: Fleming
+   Here's the information in a single string: Fleming, Flip
+
+   ```c++
+   #include <iostream>
+   #include <string>   // make string class avaliable
+   int main()
+   {
+   	using namespace std;
+   	string firstname;
+   	string lastname;
+   
+   	cout << "What is your first name: ";
+   	getline(cin, firstname);
+   
+   	cout << "What is your last name: ";
+   	getline(cin, lastname);
+   	
+   	cout << "Here's the information in a single string: " << lastname << ", " << firstname <<endl;
+   	return 0;
+   }
+   ```
+
+5. The CandyBar structure contains three members. The first member holds the brand name of a candy bar. The second member holds the weight (which may have a fractional part) of the candy bar, and the third member holds the number of calories (an integer value) in the candy bar. Write a program that declares such a structure and creates a CandyBar variable called snack, initializing its members to "Mocha Munch", 2.3, and 350, respectively. The initialization should be part of the declaration for snack. Finally, the program should display the contents of the snack variable.
+
+   ```c++
+   #include <iostream>
+   struct CandyBar
+   {
+   	char brand[20];
+   	float weight;
+   	int energy;
+   };
+   
+   int main()
+   {
+   	using namespace std;
+   	CandyBar snack =
+   	{
+   		"Mocha Munch",
+   		2.3,
+   		350
+   	};
+   	cout << snack.brand << endl;
+   	cout << snack.weight << endl;
+   	cout << snack.energy << endl;
+   	return 0;
+   }
+   ```
+
+6. The CandyBar structure contains three members, as described in Programming Exercise 5. Write a program that creates an array of three CandyBar structures, initializes them to values of your choice, and then displays the contents of each structure.
+
+   ```c++
+   #include <iostream>
+   struct CandyBar
+   {
+   	char brand[20];
+   	float weight;
+   	int energy;
+   };
+   
+   int main()
+   {
+   	using namespace std;
+   	CandyBar candy[3] =
+   	{
+   		{"Mocha Munch", 2.3, 350},
+   		{"Rabit food", 2.5, 330},
+   		{"Fuck root", 5, 666}
+   	};
+   	cout << candy[0].brand << endl;
+   	cout << candy[1].brand << endl;
+   	cout << candy[2].brand << endl;
+   	return 0;
+   }
+   ```
+
+7. William Wingate runs a pizza-analysis service. For each pizza, he needs to record the following information:• The name of the pizza company, which can consist of more than one word
+   • The diameter of the pizza
+   • The weight of the pizza
+   Devise a structure that can hold this information and write a program that uses a structure variable of that type. The program should ask the user to enter each of the preceding items of information, and then the program should display that information. Use cin (or its methods) and cout.
+
+   ```c++
+   #include <iostream>
+   struct Pizza
+   {
+   	std::string name;
+   	float diameter;
+   	float weight;
+   };
+   
+   int main()
+   {
+   	using namespace std;
+   	Pizza pizza;
+   	
+   	getline(cin, pizza.name);
+   	cin >> pizza.diameter;
+   	cin >> pizza.weight;
+   	
+   	cout << pizza.name << endl;
+   	cout << pizza.diameter << endl;
+   	cout << pizza.weight << endl;
+   	return 0;
+   }
+   ```
+
+8. Do Programming Exercise 7 but use new to allocate a structure instead of declaring a structure variable. Also have the program request the pizza diameter before it requests the pizza company name.
+
+   ```c++
+   #include <iostream>
+   struct Pizza
+   {
+   	std::string name;
+   	float diameter;
+   	float weight;
+   };
+   
+   int main()
+   {
+   	using namespace std;
+   	Pizza * pt = new Pizza;     // allot memory for structure
+   	
+   	
+   	//cin >> pt->name;
+   
+   	(cin >> pt->diameter).get();   // take off '\n'
+   	//cin.get();
+   	//cin >> pt->name;
+    	getline(cin, pt->name);
+   	cin >> pt->weight;
+   	
+   	cout << pt->name << endl;
+   	cout << pt->diameter << endl;
+   	cout << pt->weight << endl;
+   	return 0;
+   }
+   ```
+
+9. Do Programming Exercise 6, but instead of declaring an array of three CandyBar structures, use new to allocate the array dynamically.
+
+   ```c++
+   #include <iostream>
+   #include <string>
+   struct CandyBar
+   {
+   	std::string brand;
+   	float weight;
+   	int energy;
+   };
+   
+   int main()
+   {
+   	using namespace std;
+   	CandyBar * pt = new CandyBar [3];
+   	pt[0] = {"Mocha Munch", 2.3, 350};
+   	pt[1] = {"Rabit food", 2.5, 330};
+   	pt[2] = {"Fuck root", 5, 666};
+   	
+   	cout << (pt+1)[0].brand << endl;
+   	cout << (pt+1)->brand << endl;
+   	cout << pt[2].brand << endl;
+   	delete [] pt;
+   	return 0;
+   }
+   ```
+
+10. Write a program that requests the user to enter three times for the 40-yd dash (or 40-meter, if you prefer) and then displays the times and the average. Use an array object to hold the data. (Use a built-in array if array is not available.)
+
+    ```c++
+    #include <iostream>
+    #include <array>
+    #include <string>
+    
+    int main()
+    {
+    	using namespace std;
+    	array<float, 4> grade;   // create array object of 4 floats
+    	int times = 0;
+    	cout << "Please input the grade one time: ";
+    	cin >> grade[times];
+    	times = times + 1;
+    	cout << "Please input the grade two time: ";
+    	cin >> grade[times];
+    	times = times + 1;
+    	cout << "Please input the grade third time: ";
+    	cin >> grade[times];
+    	times = times + 1;
+    	
+    	grade[times] = (grade[0] + grade[1] + grade[2]) / 3;
+    	cout << "The times are: " << times << endl;
+    	cout << "The average grade is: " << grade[times];
+    	return 0;
+    }
+    ```
+
