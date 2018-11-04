@@ -270,7 +270,7 @@ Sometimes new C++ users become confused about when to use the dot operator and w
 >
 > 17. Declare a vector object of 10 string objects and an array object of 10 string objects. Show the necessary header files and don’t use using. Do use a const for the number of strings.
 
-### Answer
+#### Answer
 
 1. Declare in built-in array
 
@@ -367,7 +367,7 @@ Sometimes new C++ users become confused about when to use the dot operator and w
     std::vector<std::string> vd(10);	// create an array of 10 strings
     ```
 
-### Programming Exercises
+#### Programming Exercises
 
 1. Write a C++ program that requests and displays information as shown in the following example of output:
     What is your first name? Betty Sue
