@@ -355,8 +355,39 @@ A nested loop is a loop within a loop. Nested loops provide a natural way to pro
   1951 Kaiser
   ```
 
-  ```
-  
+  ```c++
+  #include <iostream>
+  #include <string>
+  #include <cstring>
+  struct car
+  {
+  	std::string make;
+  	int year;
+  };
+  int main()
+  {
+  	using namespace std;
+  	int numbers;
+  	
+  	cout << "How many cars do you wish to catalog? ";
+  	cin >> numbers;
+  	cin.get();
+   	car * pt_car = new car [numbers];
+   	
+  	for (int i = 0; i < numbers; ++i)
+  	{
+  		cout << "Car #" << i+1 << ":\n";
+  		cout << "Please enter the make: ";
+  		getline(cin, (pt_car + i)->make);
+  		cout << "Please enter the year made: ";
+  	 	(cin >> (pt_car + i)->year).get();
+  	};
+  	cout << "Here is your colletion:\n";
+  	for (int i = 0; i < numbers; ++i)
+  		cout << (pt_car + 1)->year << " " << (pt_car + i)->make << " " << endl;
+  	delete [] pt_car;
+  	return 0;
+  }
   ```
 
 8. Write a program that uses an array of char and a loop to read one word at a time until the word done is entered. The program should then report the number of words entered (not counting done). A sample run could look like this:
@@ -381,4 +412,34 @@ A nested loop is a loop within a loop. Nested loops provide a natural way to pro
     ..***
     .****
     *****
+    ```
+
+    ```c++
+    #include <iostream>
+    int main()
+    {
+    	using namespace std;
+    	int row;
+    	cout << "Enter number of rows: ";
+    	cin >> row;
+    	char maxtemp[row][row];
+    	
+    	// store the 2-D arrays
+    	for (int i = 0; i < row; ++i)
+    	{
+    		for (int j = 0; j < i + 1; ++j)
+    			maxtemp[i][row - 1 - j] = '*';
+    		for (int k = 0; k < row - 1 - i; ++k)
+    			maxtemp[i][k] = '.';
+    	}
+    	
+    	// print the result
+    	for (int i = 0; i < row; ++i)
+    	{
+    		for (int j = 0; j < row ; ++j)
+    			cout << maxtemp[i][j];
+    		cout << endl;
+    	}
+    	return 0;
+    }
     ```
