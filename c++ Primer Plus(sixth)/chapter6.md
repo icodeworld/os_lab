@@ -185,7 +185,68 @@ With C++’s loops and decision-making statements, you have the tools for writin
 
 1. Write a program that reads keyboard input to the @ symbol and that echoes the input except for digits, converting each uppercase character to lowercase, and vice versa. (Don’t forget the `cctype` family.)
 
+   ```c++
+   #include <iostream>
+   #include <cctype>
+   using namespace std;
+   
+   int main()
+   {
+   	char ch;
+   	while ((cin.get(ch)) && (ch != '@'))
+   	{
+   		if (isdigit(ch))
+   		{
+   			// do nothing
+   		};
+   		if (islower(ch))
+   		{
+   			ch = toupper(ch);
+   			cout << ch;
+   			continue;
+   		}
+   		if (isupper(ch))
+   		{
+   			ch = tolower(ch);
+   			cout << ch;
+   			continue;
+   		}
+   	}
+   	return 0;
+   }
+   ```
+
 2. Write a program that reads up to 10 donation values into an array of double. (Or, if you prefer, use an array template object.) The program should terminate input on non-numeric input. It should report the average of the numbers and also report how many numbers in the array are larger than the average.
+
+   ```c++
+   #include <iostream>
+   #include <cctype>
+   const int Max = 10;
+   int main()
+   {
+   	using namespace std;
+   	double donation[Max];
+   	int i = 0;
+   	while (i < Max && cin >> donation[i])
+    	{
+    		i++;
+   	};
+   // calculate
+   	double average = 0.0;
+   	for (int j = 0; j < i; j++)
+   		average += donation[j];
+   	average = average / i;
+   	cout << "Average is: " << average << endl;
+   
+   	int more = 0;
+   	for (int k = 0; k < i; k++)
+   		if (donation[k] > average)
+   			more++;
+   	cout << more << endl;
+   	cout << "Done.\n";
+   	return 0;
+   }
+   ```
 
 3. Write a precursor to a menu-driven program. The program should display a menu offering four choices, each labeled with a letter. If the user responds with a letter other than one of the four valid choices, the program should prompt the user to enter a valid response until the user complies. Then the program should use a switch to select a simple action based on the user’s selection. A program run could look something like this:
 
@@ -198,6 +259,46 @@ With C++’s loops and decision-making statements, you have the tools for writin
   Please enter a c, p, t, or g: t
   A maple is a tree.
   ```
+
+  ```c++
+  #include <iostream>
+  using namespace std;
+  void showmenu();
+  int main()
+  {
+  	showmenu();
+  	char choices;
+  	cout << "Please enter a c, p, t, or g: ";
+  	while (true)
+  	{
+  		cin >> choices;
+  		switch(choices)
+  		{
+  			
+  			case 'c': cout << "A maple is a carnivore.\n";
+  					  break;
+  			case 'p': cout << "A maple is a pianist.\n";
+  					  break;
+  			case 't': cout << "A maple is a tree.\n";
+  					  break;
+  			case 'g': cout << "A maple is a game.\n";
+  					  break;
+  			default:  cout << "Please enter a c, p, t, or g: ";
+  					  continue;
+  		}
+  	}
+  	cout << "Bye!\n";
+  	return 0;
+  }
+  
+  void showmenu()
+  {
+  	cout << "Please enter one of the following choices:\n"
+  		    "c) carnivore			p) pianist\n"
+  			"t) tree				g) game\n";
+  }
+  ```
+
 
 4. When you join the Benevolent Order of Programmers, you can be known at BOP meetings by your real name, your job title, or your secret BOP name. Write a program that can list members by real name, by job title, by secret name, or by a member’s preference. Base the program on the following structure:
   // Benevolent Order of Programmers name structure
@@ -238,6 +339,82 @@ With C++’s loops and decision-making statements, you have the tools for writin
   Next choice: q
   Bye!
   ```
+
+  ```c++
+  #include <iostream>
+  using namespace std;
+  const int Size = 5;
+  const int strsize = 30;
+  
+  struct bop {
+      char fullname[strsize];     // real name
+      char title[strsize];       // job title
+      char bopname[strsize];    // secret BOP name
+      int preference;			 // 0 = fullname, 1 = title, 2 = bopname
+  };							// Benevolent Order of Programmers name structure
+  void showmenu();
+  
+  int main()
+  {
+  	showmenu();
+  	char choice;
+  
+  	bop guests[Size] =
+  	{
+  		{"Hu jie", "Professor", "Tutu", 0},
+  		{"Wang Lu", "graceful Wife", "Lulu", 1},
+  		{"Jian cheng", "faithful friend", "CC", 2},
+  		{"Xiao Hui", "forever friend", "HH", 1},
+  		{"He Ke Yi", "good friend", "KH", 0}
+  	};
+  	cout << "Enter your choice: ";
+  	cin >> choice;
+  	while (choice != 'q')
+  	{
+  		switch(choice)
+  		{
+  			case 'a' :
+  					 for (int i = 0; i < Size; i++)
+  						cout << guests[i].fullname << endl;
+  					 break;
+  			case 'b' :
+  					 for (int i = 0; i < Size; i++)
+  						cout << guests[i].title << endl;
+  					 break;
+  			case 'c' :
+  					 for (int i = 0; i < Size; i++)
+  						cout << guests[i].bopname << endl;
+  					 break;
+  			case 'd' :
+  					 for (int i = 0; i < Size; i++)
+  					 {
+  							if (guests[i].preference == 0)
+  								cout << guests[i].fullname << endl;
+  							if (guests[i].preference == 1)
+  								cout << guests[i].title << endl;
+  							if (guests[i].preference == 2)
+  								cout << guests[i].bopname << endl;
+  					 };
+  					 break;
+  			default: cout << "That's not a choice.\n";
+  		}
+  		showmenu();
+  		cout << "Next choice: ";
+  		cin >> choice;
+  	}
+  	cout << "Bye!\n";
+  	return 0;
+  }
+  
+  void showmenu()
+  {
+  	cout << "Benevolent Order of Programmers Report\n"
+  			"a. display by name     b. display by title\n"
+  			"c. display by bopname  d. display by preference\n"
+  			"q. quit\n";
+  }
+  ```
+
 
 5. The Kingdom of Neutronia, where the unit of currency is the tvarp, has the following income tax code:
   First 5,000 tvarps: 0% tax
