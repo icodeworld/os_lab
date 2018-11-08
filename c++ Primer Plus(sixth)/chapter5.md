@@ -251,10 +251,10 @@ A nested loop is a loop within a loop. Nested loops provide a natural way to pro
    ```
 
 4. Daphne invests $100 at 10% simple interest. That is, every year, the investment earns 10% of the original investment, or $10 each and every year:
-  interest = 0.10 × original balance
-  At the same time, Cleo invests $100 at 5% compound interest. That is, interest is 5% of the current balance, including previous additions of interest:
-  interest = 0.05 × current balance
-  Cleo earns 5% of $100 the first year, giving her $105. The next year she earns 5% of $105, or $5.25, and so on. Write a program that finds how many years it takes for the value of Cleo’s investment to exceed the value of Daphne’s investment and then displays the value of both investments at that time.
+    interest = 0.10 × original balance
+    At the same time, Cleo invests $100 at 5% compound interest. That is, interest is 5% of the current balance, including previous additions of interest:
+    interest = 0.05 × current balance
+    Cleo earns 5% of $100 the first year, giving her $105. The next year she earns 5% of $105, or $5.25, and so on. Write a program that finds how many years it takes for the value of Cleo’s investment to exceed the value of Daphne’s investment and then displays the value of both investments at that time.
 
   ```c++
   #include <iostream>
@@ -401,7 +401,52 @@ A nested loop is a loop within a loop. Nested loops provide a natural way to pro
 
    You should include the `cstring` header file and use the `strcmp()` function to make the comparison test.
 
+   ```c++
+   #include <iostream>
+   #include <string>
+   #include <cstring>
+   const int Size = 100;
+   int main()
+   {
+   	using namespace std;
+   	char name[Size];
+   	cout << "Enter words (to stop, type the word done):\n";
+   	
+   	int count = 0;
+   	cin >> name;     // get first word
+   	while (strcmp(name, "done"))
+   	{
+   		++count;
+   		cin >> name;    // get next word
+   	}
+   	cout << endl << "You entered a total of " << count << " words.";
+   	return 0;
+   }
+   ```
+
 9. Write a program that matches the description of the program in Programming Exercise 8, but use a string class object instead of an array. Include the string header file and use a relational operator to make the comparison test.
+
+   ```
+   #include <iostream>
+   #include <string>
+   #include <cstring>
+   const int Size = 100;
+   int main()
+   {
+   	using namespace std;
+   	string name;
+   	int count = 0;
+   	cout << "Enter words (to stop, type the word done):\n";
+   	cin >> name;
+   	while (name != "done")
+   	{
+   		++count;
+   		cin >> name;
+   	}
+   	cout << endl << "You entered a total of " << count << " words.";
+   	return 0;
+   }
+   ```
 
 10. Write a program using nested loops that asks the user to enter a value for the number of rows to display. It should then display that many rows of asterisks, with one asterisk in the first row, two in the second row, and so on. For each row, the asterisks are preceded by the number of periods needed to make all the rows display a total number of characters equal to the number of rows. A sample run would look like this:
 

@@ -424,9 +424,106 @@ With C++’s loops and decision-making statements, you have the tools for writin
   Tvarps after 35,000: 20% tax
   For example, someone earning 38,000 tvarps would owe 5,000 × 0.00 + 10,000 × 0.10 + 20,000 × 0.15 + 3,000 × 0.20, or 4,600 tvarps. Write a program that uses a loop to solicit incomes and to report tax owed. The loop should terminate when the user enters a negative number or non-numeric input.
 
+  ```c++
+  #include <iostream>
+  #include <cctype>
+  using namespace std;
+  
+  void showmenu();
+  
+  int main()
+  {
+  	int income;
+  	double tax;
+  	cout << "Enter your income: ";
+  	cin >> income;
+  	while (isdigit(income) || income >= 0)
+  	{
+  		if (income <= 5000)
+  		{
+  			tax = 0;
+  			cout << "The tax is: " << tax << endl;
+  		}
+  		else if (5001 <= income <= 15000)
+  		{
+  			tax = (income - 5000) * 0.10;
+  			cout << "The tax is: " << tax << endl;
+  		}
+  		else if (15001 <= income <= 35000)
+  		{
+  			tax = 10000 * 0.10 + (income - 5000 - 10000) * 0.20;
+  			cout << "The tax is: " << tax << endl;
+  		}
+  		else 
+  		{
+  			tax = 10000 * 0.10 + 20000 * 0.15 + (income - 5000 - 10000 - 20000) * 0.20;
+  			cout << "The tax is: " << tax << endl;
+  		}
+  		showmenu();
+  		cin >> income;
+  	}
+  	cout << "Bye!\n";
+  	return 0;
+  }
+  
+  void showmenu()
+  {
+  	cout << "Enter your income: ";
+  }
+  ```
+
+
 6. Put together a program that keeps track of monetary contributions to the Society for the Preservation of Rightful Influence. It should ask the user to enter the number of contributors and then solicit the user to enter the name and contribution of each contributor. The information should be stored in a dynamically allocated array of structures. Each structure should have two members: a character array (or else a string object) to store the name and a double member to hold the amount of the contribution. After reading all the data, the program should display the names and amounts donated for all donors who contributed $10,000 or more. This list should be headed by the label Grand Patrons. After that, the program should list the remaining donors. That list should be headed Patrons. If there are no donors in one of the categories, the program should print the word “none.” Aside from displaying two categories, the program need do no sorting.
 
-7. Write a program that reads input a word at a time until a lone q is entered. The program should then report the number of words that began with vowels, the number that began with consonants, and the number that fit neither of those categories. One approach is to use `isalpha()` to discriminate between words beginning with letters and those that don’t and then use an if or switch statement to further identify those passing the isalpha() test that begin with vowels. A sample run might look like this:
+   ```c++
+    #include <iostream>
+    using namespace std;
+    struct contribution
+    {
+   	 string name;
+   	 double money;
+    };
+    int main()
+    {
+   	 int number;
+   	 cout << "The contribution number: ";
+   	 cin >> number;
+   	 contribution * ps = new contribution [number];	// creat point array
+   	 int i = -1;
+   	 for (int i = 0; i < number; ++i)
+   	 {
+   		 cout << "Enter name of contribution item: ";
+   		 cin.get();
+   		 getline(cin, ps[i].name);     // method 1 for member access
+   		 cout << "Enter money: ";
+   		 cin >> (ps + i)->money;	// method 2 for member accesss
+   	 }
+   	 cout << "Grand Patrons:\n";
+   	 int count1 = 0;
+   	 for (int j = 0; j < number; ++j)
+   		 if (10000 < ps[j].money)
+   		 {
+   			 cout << ps[j].name << "\t" << ps[j].money << endl;
+   			 ++count1;
+   		 }
+   	 if (count1 == 0)
+   		 cout << "none.\n";
+   	 cout << "Patrons:\n";
+   	 int count2 = 0;
+     	 for (int j = 0; j < number; ++j)
+   		 if (ps[j].money <= 10000)
+   		 {
+   			++count2;
+   			cout << ps[j].name << "\t" << ps[j].money << endl;
+   		 }
+   	 if (count2 == 0)
+   		 cout << "none.\n";
+   	 delete [] ps;
+   	 return 0;
+    }
+   ```
+
+7. Write a program that reads input a word at a time until a lone q is entered. The program should then report the number of words that began with vowels, the number that began with consonants, and the number that fit neither of those categories. One approach is to use `isalpha()` to discriminate between words beginning with letters and those that don’t and then use an if or switch statement to further identify those passing the `isalpha()` test that begin with vowels. A sample run might look like this:
 
    ```
    Enter words (q to quit):
@@ -437,7 +534,79 @@ With C++’s loops and decision-making statements, you have the tools for writin
    2 others
    ```
 
+   ```c++
+   #include <iostream>
+   #include <cctype>
+   #include <cstring>
+   using namespace std;
+   const int Size = 100;
+   int main()
+   {
+   	char name[Size];
+   	int number_v = 0;
+   	int number_c = 0;
+   	int number_o = 0;
+   	cout << "Enter words (q to quit):\n";
+   	cin >> name;
+   	while (strcmp(name, "q"))
+   	{
+   		if (isalpha(name[0]))
+   		{
+   			if (name[0] == 'a' || name[0] == 'e' || name[0] == 'i' || name[0] == 'o' || name[0] == 'u')
+   				++number_v;
+   			else
+   				++number_c;
+   		}
+   		else 
+   			++number_o;
+   		cin >> name;       // points to next word
+   	}
+   	cout << number_v << " words beginning with vowels\n";
+   	cout << number_c << " words beginning with consonants\n";
+   	cout << number_o << " others";
+   	return 0;
+   }
+   ```
+
+
 8. Write a program that opens a text file, reads it character-by-character to the end of the file, and reports the number of characters in the file.
+
+   ```c++
+    #include <iostream>
+    #include <fstream>		// file I/O support
+    #include <cstdlib>		// support for exit()
+    const int Size = 100;
+    int main()
+    {
+   	 using namespace std;
+   	 char filename[Size];
+   	 ifstream inFile;		// object for handling file input
+   	 cout << "Open file: ";
+   	 cin.getline(filename, Size);
+   	 inFile.open(filename);		// associate inFile with a file
+   	 if (!inFile.is_open())		// failed to open file
+   	{
+   		cout << "Could not open the file " << filename << endl;
+   		cout << "Program terminating.\n";
+   		exit(EXIT_FAILURE);
+   	}
+   	char ch;
+   	int count = 0;
+   	while (inFile.get(ch))	// while input is successful
+   	{
+   		if (ch != ' ')
+   			++count;
+   	}
+   	if (inFile.eof())
+   		cout << "End of file reached.\n" << "total is: " << count << " character.";
+   	else if (inFile.fail())
+   		cout << "Input terminated by data mismatch.\n";
+   	else
+   		cout << "Input terminated for unknown reason.\n";
+   	inFile.close();
+   	return 0;
+    }
+   ```
 
 9. Do Programming Exercise 6 but modify it to get information from a file. The first item in the file should be the number of contributors, and the rest of the file should consist of pairs of lines, with the first line of each pair being a contributor’s name and the second line being a contribution. That is, the file should look like this:
 
@@ -452,3 +621,71 @@ With C++’s loops and decision-making statements, you have the tools for writin
   Rich Raptor
   55000
   ```
+
+  ```c++
+   #include <iostream>
+   #include <fstream>		// file I/O support
+   #include <cstdlib>		// support for exit()
+   using namespace std;
+   const int Size = 20;
+   struct contribution
+   {
+  	 string name;
+  	 double money;
+   };
+   int main()
+   {
+  	 ifstream infile;		// object for handling file input
+  	 cout << "Open file: ";
+  	 infile.open("donation.txt");		// associate infile with a file
+  	 if (!infile.is_open())      // failed to open file
+  	 {
+  		cout << "Could not open the file donation.txt." << endl;
+  		cout << "Program terminating.\n";
+  		exit(EXIT_FAILURE);
+  	 }
+  	 
+  	 int number;
+  	 cout << "The contribution number: ";
+  	 infile >> number;
+  	 cout << number << endl;
+  	 infile.get();
+  	 contribution * ps = new contribution [number];	// creat point array
+  	 int i = -1;
+  	 for (int i = 0; i < number; ++i)
+  	 {
+  		 getline(infile, ps[i].name);     // method 1 for member access
+  		 infile >> (ps + i) -> money;	// method 2 for member accesss (because money is double)
+  		 infile.get();	
+  	 }
+  	 
+  	 cout << "Grand Patrons:\n";
+  	 int count1 = 0;
+  	 for (int j = 0; j < number; ++j)
+  		 if (10000 < ps[j].money)
+  		 {
+  			 cout << ps[j].name << "\t" << ps[j].money << endl;
+  			 ++count1;
+  		 }
+  	 if (count1 == 0)
+  		 cout << "none.\n";
+  	 cout << "Patrons:\n";
+  	 int count2 = 0;
+    	 for (int j = 0; j < number; ++j)
+  		 if (ps[j].money <= 10000)
+  		 {
+  			++count2;
+  			cout << ps[j].name << "\t" << ps[j].money << endl;
+  		 }
+  	 if (count2 == 0)
+  		 cout << "none.\n";
+  	 delete [] ps;
+  	 inFile.close();
+  	 return 0;
+   }
+  ```
+
+  Attention:
+
+  1. `cin` can show in the screen, but `infile`can't.I guess its because they are different condition.
+  2. the `32s row` and `33s row` is the key to output rightly.make a distinction between `char ` ` string ` and `double`.such as the above.
