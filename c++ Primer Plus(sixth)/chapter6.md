@@ -592,9 +592,8 @@ With C++’s loops and decision-making statements, you have the tools for writin
    	}
    	char ch;
    	int count = 0;
-   	while (inFile.get(ch))	// while input is successful
+   	while (inFile >> ch)	// while input is successful
    	{
-   		if (ch != ' ')
    			++count;
    	}
    	if (inFile.eof())
