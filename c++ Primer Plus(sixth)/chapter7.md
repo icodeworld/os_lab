@@ -306,8 +306,518 @@ const double * f3(const double *, int);
    }
    ```
 
+5. .
+
+   ```c++
+   double max(const double ar[], int size)
+   {
+       double max;
+       if (size < 1)
+       {
+           cout << "Invalid array size of " << size << endl;
+           cout << "Returning a value of 0\n";
+           return 0;
+       }
+       else
+       {
+           max = ar[0];
+           for (int i = 0; i < size; i++)
+           	if (max < ar[i])
+               	max = ar[i];
+           return max;
+       }
+   }
+   ```
+
+6. You use the const qualifier with pointers to protect the original pointed-to data from being altered. When a program passes a fundamental type such as an int or a double, it passes it by value so that the function works with a copy. Thus, the original data is already protected.
+
+7. A string can be stored in a char array, it can be represented by a string constant in double quotation marks, and it can be represented by a pointer pointing to the first character of a string.
+
+8. .
+
+   ```c++
+   int replace(char * str, char c1, char c2)
+   {
+   	int count = 0;
+       while (*str != '\0')
+       {
+           if (c1 == * str)
+           {
+               *str = c2;
+           	count++; 
+           }
+   		str++;		// advance to next character
+       }	
+       return count;
+   }
+   ```
+
+9. Because C++ interprets "pizza" as the address of its first element, applying the * operator yields the value of that first element, which is the character p. Because C++ interprets "taco" as the address of its first element, it interprets "taco"[2] as the value of the element two positions down the line—that is, as the character c. In other words, the string constant acts the same as an array name.
+
+10. To pass it by value, you just pass the structure name glitz. To pass its address, you use the address operator &glitz. Passing by the value automatically protects the original data, but it takes time and memory. Passing by address saves time and memory but doesn’t protect the original data unless you use the const modifier for the function parameter. Also passing by value means you can use ordinary structure member notation, but passing a pointer means you have to remember to use the indirect membership operator.
+
+11. `int judge(int (*pf)(const char *));`
+
+12. a
+
+    ```c++
+    void display(applicant ap)
+    {
+        cout << ap.name << endl;
+        for (int i = 0; i < 3; i++)
+            cout << ap.credit_ratings[i] << endl;
+    }
+    ```
+
+    b
+
+    ```c++
+    void show(const applicant * pt)
+    {
+        cout << pt->name << endl;
+        for (int i = 0; i < 3; i++)
+        	cout << pt->credit_ratings[i] << endl;
+    }
+    ```
+
+13. .
+
+    ```c++
+    typedef void (*p_f1)(applicant *);
+    p_f1 p1 = f1;
+    
+    typedef const char * (*P_f2)(const applicant *, const applicant *);
+    p_f2 p2 = f2;
+    
+    p_f1 ap[5];
+    
+    p_f2 ap2[10];
+    p_f2 (*pa)[10] = &ap2;		// pa points to an array of 3 function pointers
+    ```
+
+## Programming Exercises
+
+1. Write a program that repeatedly asks the user to enter pairs of numbers until at least one of the pair is 0. For each pair, the program should use a function to calculate the harmonic mean of the numbers. The function should return the answer to main(), which should report the result. The harmonic mean of the numbers is the inverse of the average of the inverses and can be calculated as follows:
+  harmonic mean = 2.0 × x × y / (x + y)
+
+  ```c++
+  #include <iostream>
+  double ave(double x, double y);
+  int main()
+  {
+  	using namespace std;
+  	double x;
+  	double y;
+  	
+  	cout << "Enter the x and y values: ";
+  	while (!(cin >> x >> y)) // bad input
+  	{
+  		cin.clear();
+  		while (cin.get() != '\n')
+  			  continue;
+  		cout << "Bad input; Please enter two numbers: ";
+  	}
+  	
+  	while (x && y)
+  	{
+  	    cout << "harmonic mean of " << x << ", " << y << " = " << ave(x,y) << endl;
+  		cout << "Enter again(0 to quit): ";
+  		cin >> x >> y;
+  	}
+  
+  	return 0;
+  }
+  
+  double ave(double x, double y)
+  {
+  	return 2.0 * x * y / (x + y);
+  }
+  ```
+
+2. Write a program that asks the user to enter up to 10 golf scores, which are to be stored in an array. You should provide a means for the user to terminate input prior to entering 10 scores. The program should display all the scores on one line and report the average score. Handle input, display, and the average calculation with three separate array-processing functions.
+
+   ```c++
+   #include <iostream>
+   using namespace std;
+   const int Max = 10;
+   
+   int fill(double grade[], int Max);
+   void show(double const grade[], int i);
+   double ave(double const grade[], int i);
+   
+   int main()
+   {
+   	double grade[Max];
+   	int size = fill(grade, Max);
+   	show(grade, size);
+   	cout << "\nAverage is: " << ave(grade, size) << endl;
+   	cout << "Done.\n";
+   	cin.get();
+   	cin.get();
+   	return 0;
+   }
+   
+   int fill(double grade[], int Max)
+   {
+   	double temp;
+   	int i;
+   	for (i = 0; i < Max; i++)
+   	{
+   		cout << "Enter value #" << (i + 1) << ": ";
+   		cin >> temp;
+   		if (!cin)   // bad input
+   		{
+   			cin.clear();
+   			while (cin.get() != '\n')
+   				continue;
+   			cout << "Bad input; Please enter two numbers: ";
+   			break;
+   		}
+   		else if (temp < 0)
+   			break;
+   		grade[i] = temp;
+   	}
+   	return i;
+   }
+   void show(double const grade[], int i)
+   {
+   	cout << "\nGrade are: ";
+   	for (int j = 0; j < i; j++)
+   		cout << grade[j] << "  ";
+   }
+   
+   double ave(double const grade[], int i)
+   {
+   	double average = 0;
+   	for (int j = 0; j < i; j++)
+   		average += grade[j];
+   	average = average / i;
+   	return average;
+   }
+   ```
+
+3. Here is a structure declaration:
+
+   ```c++
+   struct box
+   {
+         char maker[40];
+         float height;
+         float width;
+         float length;
+         float volume;
+   };
+   ```
+
+   a. Write a function that passes a box structure by value and that displays the value of each member.
+
+   ```c++
+   box show(box mm)
+   {
+   	cout << mm.maker << endl;
+   	cout << mm.height << endl;
+   	cout << mm.width << endl;
+   	cout << mm.length << endl;
+   	cout << mm.volume << endl;
+   }
+   ```
+
+   b. Write a function that passes the address of a box structure and that sets the volume member to the product of the other three dimensions.
+
+   ```c++
+   box set(box * pa)
+   {
+   	pa->volume = pa->height * pa->width * pa->length;
+   }
+   ```
+
+   c. Write a simple program that uses these two functions.
+
+   ```c++
+   #include <iostream>
+   using namespace std;
+   struct box
+   {
+   	char maker[40];
+   	float height;
+   	float width;
+   	float length;
+   	float volume;
+   };
+   
+   box set(box *);
+   box show(box mm);
+   
+   
+   int main()
+   {
+   	box mm = {"Hj", 20, 40, 50.0, 1000};
+   	set(&mm);
+   	show(mm);
+   	cout << "Done.\n";
+   	return 0;
+   }
+   
+   box set(box * pa)
+   {
+   	pa->volume = pa->height * pa->width * pa->length;
+   }
+   
+   box show(box mm)
+   {
+   	cout << mm.maker << endl;
+   	cout << mm.height << endl;
+   	cout << mm.width << endl;
+   	cout << mm.length << endl;
+   	cout << mm.volume << endl;
+   }
+   ```
 
 
+4. Many state lotteries use a variation of the simple lottery portrayed by Listing 7.4. In these variations you choose several numbers from one set and call them the field numbers. For example, you might select five numbers from the field of 1–47). You also pick a single number (called a mega number or a power ball, etc.) from a second range, such as 1–27. To win the grand prize, you have to guess all the picks correctly. The chance of winning is the product of the probability of picking all the field numbers times the probability of picking the mega number. For instance, the probability of winning the example described here is the product of the probability of picking 5 out of 47 correctly times the probability of picking 1 out of 27 correctly. Modify Listing 7.4 to calculate the probability of winning this kind of lottery.
 
+   ```c+
+   // lotto.cpp -- probability of winning
+   #include <iostream>
+   // Note: some implementations require double instead of long double
+   long double probability(unsigned numbers, unsigned picks);
+   long double count(unsigned number1, unsigned pick1, unsigned number2, unsigned pick2);
+   int main()
+   {
+   	using namespace std;
+   	double total1, choice1;
+   	double total2, choice2;
+   	cout << "Enter the total number of choices on the game card and\n"
+   			"the number of picks allowed:\n";
+   	while ((cin >> total1 >> choice1 >> total2 >> choice2) && (choice1 <= total1) && (choice2 <= total2))
+   	{
+   		cout << "You have one chance in ";
+   		cout << count(total1, choice1, total2, choice2);
+   		cout << " of winning.\n";
+   		cout << "Next four numbers (q to quit): ";
+   	}
+   	cout << "bye\n";
+   	return 0;
+   }
+   
+   // the following function calculates the probability of picking picks
+   // numbers correctly from numbers choices
+   long double probability(unsigned numbers, unsigned picks)
+   {
+   	long double result = 1.0;	// here come some local variables
+   	long double n;
+   	unsigned p;
+   
+   	for (n = numbers, p = picks; p > 0; n--, p--)
+   		result = result * n / p ;
+   	return result;
+   }
+   
+   long double count(unsigned number1, unsigned pick1, unsigned number2, unsigned pick2)
+   {
+   	return probability(number1,pick1) * probability(number2,pick2);
+   }
+   ```
 
+5. Define a recursive function that takes an integer argument and returns the factorial of that argument. Recall that 3 factorial, written 3!, equals 3 × 2!, and so on, with 0! defined as 1. In general, if n is greater than zero, n! = n * (n - 1)!. Test your function in a program that uses a loop to allow the user to enter various values for which the program reports the factorial.
 
+   ```c++
+   #include <iostream>
+   const int Max = 20;
+   long double count(int n);
+   int main()
+   {
+   	using namespace std;
+   	int temp;
+   	int i;
+   	for (i = 0; i < Max; i++)
+   	{
+   		cout << "Enter value #" << (i + 1) << ": ";
+   		cin >> temp;
+   		if (!cin)   // bad input
+   		{
+   			cin.clear();
+   			while (cin.get() != '\n')
+   				continue;
+   			cout << "Bad input; Please enter two numbers: ";
+   			break;
+   		}
+   		else if (temp < 0)
+   			break;
+   		cout << "The factorial of " << temp << " is " <<  count(temp) << endl;
+   	}
+   	return i;
+   	cout << "Bye!\n";
+   	return 0;
+   }
+   
+   long double count(int n)
+   {
+   	using namespace std;
+   	long double result;
+   	if (0 < n)
+   		result = n * count(n-1);
+   	else result = 1;
+   	return result;
+   }
+   ```
+
+6. Write a program that uses the following functions:
+
+   Fill_array() takes as arguments the name of an array of double values and an array size. It prompts the user to enter double values to be entered in the array. It ceases taking input when the array is full or when the user enters non-numeric input, and it returns the actual number of entries.
+   Show_array() takes as arguments the name of an array of double values and an array size and displays the contents of the array.
+   Reverse_array() takes as arguments the name of an array of double values and an array size and reverses the order of the values stored in the array.
+   The program should use these functions to fill an array, show the array, reverse the array, show the array, reverse all but the first and last elements of the array, and then show the array.
+
+   ```c++
+    #include <iostream>
+   const int Max = 10;
+   int Fill_array(double ar[], int limit);
+   void Show_array(const double ar[], int n);	// don't valueange data
+   void Reverse_array(double ar[], int n);
+   
+   int main()
+   {
+   	using namespace std;
+   	double properties[Max];
+   	
+   	int size = Fill_array(properties, Max);
+   	Show_array(properties, size);
+   	cout << endl;
+   	
+   	Reverse_array(properties, size);
+   	Show_array(properties, size);
+   	cout << endl;
+   	
+   	double temp;
+   	temp = properties[size-1];
+   	properties[size-1] = properties[0];
+   	properties[0] = temp;
+   	Show_array(properties, size);
+   		
+   	cout << "\nDone.\n";
+   	cin.get();
+   	cin.get();
+   	return 0;
+   }
+   
+   int Fill_array(double ar[], int limit)
+   {
+   	using namespace std;
+   	double temp;
+   	int i;
+   	for (i = 0; i < limit; i++)
+   	{
+   		cout << "Enter value #" << (i + 1) << ": ";
+   		cin >> temp;
+   		if (!cin)	// bad input
+   		{
+   			cin.clear();
+   			while (cin.get() != '\n')
+   				continue;
+   			cout << "Bad input; input process terminated.\n";
+   			break;
+   		}
+   		else if (temp < 0)	// signal to terminate
+   			break;
+   		ar[i] = temp;
+   	}
+   	return i;
+   }
+   
+   void Show_array(const double ar[], int n)
+   {
+   	using namespace std;
+   	for (int i = 0; i < n; i++)
+   		cout << ar[i] << " ";
+   }
+   
+   void Reverse_array(double ar[], int n)
+   {
+   	double temp;
+   	for (int i = n - 1; i >= (n-1)/2; i--)
+   	{
+   		temp = ar[i];
+   		ar[i] = ar[n-1-i];
+   		ar[n-1-i] = temp;
+   	}
+   }
+   ```
+
+7. Redo Listing 7.7, modifying the three array-handling functions to each use two pointer parameters to represent a range. The fill_array() function, instead of returning the actual number of items read, should return a pointer to the location after the last location filled; the other functions can use this pointer as the second argument to identify the end of the data.
+
+8. Redo Listing 7.15 without using the array class. Do two versions:
+  a. Use an ordinary array of const char * for the strings representing the season names, and use an ordinary array of double for the expenses.
+  b. Use an ordinary array of const char * for the strings representing the season names, and use a structure whose sole member is an ordinary array of double for the expenses. (This design is similar to the basic design of the array class.)
+
+9. This exercise provides practice in writing functions dealing with arrays and structures. The following is a program skeleton. Complete it by providing the described functions:
+
+  ```c++
+  #include <iostream>
+  using namespace std;
+  const int SLEN = 30;
+  struct student {
+      char fullname[SLEN];
+      char hobby[SLEN];
+      int ooplevel;
+  };
+  // getinfo() has two arguments: a pointer to the first element of
+  // an array of student structures and an int representing the
+  // number of elements of the array. The function solicits and
+  // stores data about students. It terminates input upon filling
+  // the array or upon encountering a blank line for the student
+  // name. The function returns the actual number of array elements
+  // filled.
+  int getinfo(student pa[], int n);
+  
+  // display1() takes a student structure as an argument
+  // and displays its contents
+  void display1(student st);
+  
+  // display2() takes the address of student structure as an
+  // argument and displays the structure's contents
+  void display2(const student * ps);
+  
+  // display3() takes the address of the first element of an array
+  // of student structures and the number of array elements as
+  // arguments and displays the contents of the structures
+  void display3(const student pa[], int n);
+  
+  int main()
+  {
+       cout << "Enter class size: ";
+       int class_size;
+       cin >> class_size;
+       while (cin.get() != '\n')
+           continue;
+  
+      student * ptr_stu = new student[class_size];
+      int entered = getinfo(ptr_stu, class_size);
+      for (int i = 0; i < entered; i++)
+      {
+          display1(ptr_stu[i]);
+          display2(&ptr_stu[i]);
+      }
+      display3(ptr_stu, entered);
+      delete [] ptr_stu;
+      cout << "Done\n";
+      return 0;
+  }
+  ```
+
+10. Design a function calculate() that takes two type double values and a pointer to a function that takes two double arguments and returns a double. The calculate() function should also be type double, and it should return the value that the pointed-to function calculates, using the double arguments to calculate(). For example, suppose you have this definition for the add() function:
+
+    ```
+    double add(double x, double y)
+    {
+       return x + y;
+    }
+    ```
+
+    Then, the function call in the following would cause calculate() to pass the values 2.5 and 10.4 to the add() function and then return the add() return value (12.9):
+    `double q = calculate(2.5, 10.4, add);`
+
+    Use these functions and at least one additional function in the add() mold in a program. The program should use a loop that allows the user to enter pairs of numbers. For each pair, use calculate() to invoke add() and at least one other function. If you are feeling adventurous, try creating an array of pointers to add()-style functions and use a loop to successively apply calculate() to a series of functions by using these pointers. Hint: Here’s how to declare such an array of three pointers:
+    double (*pf[3])(double, double);
+
+    You can initialize such an array by using the usual array initialization syntax and function names as addresses.
