@@ -746,9 +746,185 @@ const double * f3(const double *, int);
 
 7. Redo Listing 7.7, modifying the three array-handling functions to each use two pointer parameters to represent a range. The fill_array() function, instead of returning the actual number of items read, should return a pointer to the location after the last location filled; the other functions can use this pointer as the second argument to identify the end of the data.
 
+   ```c++
+    #include <iostream>
+   const int Max = 10;
+   double * fill_array(double * begin, int limit);
+   void show_array(const double * begin, const double * end);	// don't valueange data
+   void revalue(double r, double * begin, const double * end);
+   
+   int main()
+   {
+   	using namespace std;
+   	double properties[Max];
+   	double * end;
+   	end = fill_array(properties, Max);
+   	show_array(properties, end);
+   	if (end != properties)
+   	{
+   		cout << "Enter revaluation factor: ";
+   		double factor;
+   		while (!(cin >> factor))	// bad input 
+   		{
+   			cin.clear();
+   			while (cin.get() != '\n')
+   			{
+   				  continue;
+   			}
+   			cout << "Bad input; Please enter a number: ";
+   		}
+   		revalue(factor, properties, end);
+   		show_array(properties, end);
+   	}
+   	cout << "Done.\n";
+   	cin.get();
+   	cin.get();
+   	return 0;
+   }
+   
+   double * fill_array(double * begin, int limit)
+   {
+   	using namespace std;
+   	double temp;
+   	double * pt;
+   	int i;
+   	for (i = 0, pt = begin; i < limit; i++, pt++)
+   	{
+   		cout << "Enter value #" << (i + 1) << ": ";
+   		cin >> temp;
+   		if (!cin)	// bad input
+   		{
+   			cin.clear();
+   			while (cin.get() != '\n')
+   				continue;
+   			cout << "Bad input; input process terminated.\n";
+   			break;
+   		}
+   		else if (temp < 0)	// signal to terminate
+   			break;
+   		begin[i] = temp;
+   	}
+   	return pt;
+   }
+   
+   void show_array(const double * begin, const double * end)
+   {
+   	using namespace std;
+   	const	double * pt;
+   	int i = 0;
+   	for (pt = begin; pt != end; i++, pt++)
+   	{
+   		cout << "Property #" << (i + 1) << ": $";
+   		cout << *pt << endl;
+   	}
+   }
+   
+   void revalue(double r, double * begin, const double * end)
+   {
+   	double * pt;
+   
+   	for (pt = begin; pt != end;pt++)
+   		* pt *= r;
+   }
+   ```
+
 8. Redo Listing 7.15 without using the array class. Do two versions:
   a. Use an ordinary array of const char * for the strings representing the season names, and use an ordinary array of double for the expenses.
+
+  ```c++
+  #include <iostream>
+  #include <string>
+  using namespace std;
+  const int Seasons = 4;
+  const int Max = 20;
+  char const * arr[Seasons] = {"Spring", "Summer", "Fall", "Winter"};
+  
+  void fill(char const * arr[Seasons], double expenses[Seasons]);
+  void show(char const * arr[Seasons], double const expenses[Seasons]);
+  
+  int main()
+  {
+  	double expenses[Seasons];
+  	fill(arr, expenses);
+  	show(arr, expenses);
+  	return 0;
+  }
+  
+  void fill(char const * arr[Seasons], double expenses[Seasons])
+  {
+  	for (int i = 0; i < Seasons; i++)
+  	{
+  		cout << "Enter " << *(arr + i) << " expenses: ";
+  		cin >> *(expenses + i);
+  	}
+  }
+  
+  void show(char const * arr[Seasons], double const expenses[Seasons])
+  {
+  	using namespace std;
+  	double total = 0.0;
+  	cout << "\nEXPENSES\n";
+  	for (int i = 0; i < Seasons; i++)
+  	{
+  		cout << *(arr + i) << ": $" << *(expenses + i) << endl;
+  		total += *(expenses + i);
+  	}
+  }
+  ```
+
   b. Use an ordinary array of const char * for the strings representing the season names, and use a structure whose sole member is an ordinary array of double for the expenses. (This design is similar to the basic design of the array class.)
+
+  ```c++
+  #include <iostream>
+  #include <string>
+  using namespace std;
+  const int Seasons = 4;
+  const int Max = 20;
+  const char * arr[Seasons] = {"Spring", "Summer", "Fall", "Winter"};
+  
+  struct box
+  {
+  	double expenses[Seasons];
+  };
+  
+  box  fill(const char * arr[Seasons], box);
+  void show(const char * arr[Seasons], const box *);
+  
+  int main()
+  {
+  	box * pt = new box;
+  	*pt = fill(arr, *pt);
+  	show(arr, pt);
+  	
+  	delete pt;
+  	return 0;
+  }
+  
+  box  fill(const char * arr[Seasons], box pp)
+  {
+  	for (int i = 0; i < Seasons; i++)
+  	{
+  		cout << "Enter " << *(arr + i) << " expenses: ";
+  		cin >> (pp.expenses)[i];
+  	}
+  	return pp;
+  }
+  
+  void show(const char * arr[Seasons], const box * pt)
+  {
+  	using namespace std;
+  	double total = 0.0;
+  	cout << "\nEXPENSES\n";
+  	for (int i = 0; i < Seasons; i++)
+  	{
+  		cout << *(arr + i) << ": $" << (pt -> expenses)[i] << endl;
+  		total += (pt -> expenses)[i];
+  	}
+  		cout << "Total Expenses: $" << total << endl;
+  }
+  ```
+
+  #### Caution : It must return the structure or address after `fill()`,so the `fill()`can't be void type.If it is void, Then `show()`can't point to the structure having already filled.So program can't derive the right value.Because structure is passing by address.
 
 9. This exercise provides practice in writing functions dealing with arrays and structures. The following is a program skeleton. Complete it by providing the described functions:
 
